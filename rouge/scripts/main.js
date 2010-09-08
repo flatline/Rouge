@@ -153,32 +153,6 @@ function Map() {
 }
 
 /**
- * A naive priority queue implementation
- * @constructor
- */
-function PriorityQueue() {
-	var self = this;
-	this.typeName = "PriorityQueue";
-	this.list = [];
-	this.enqueue = function (obj, delay) {
-		var node = {time: delay + (new Date()).getTime(), value : obj };
-		var i = self.list.length - 1;		
-		while (i >= 0 && node.time < self.list[i].time) {
-			i--;				
-		}
-		self.list.splice(i + 1, 0, node);
-	};
-	
-	this.dequeue = function () {
-		return self.list.shift().value;			
-	};
-	
-	this.head = function () {
-		return self.list[0];
-	};
-}
-
-/**
  * Debug - lays down a default set of tiles ('.') on each square of a map.
  * @param {Map} map - the map to tile 
  */

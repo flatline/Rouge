@@ -1,4 +1,36 @@
 /**
+ * A naive priority queue implementation
+ * @constructor
+ */
+function PriorityQueue() {
+	var self = this;
+	this.typeName = "PriorityQueue";
+	this._list = [];
+	this.enqueue = function (obj, delay) {
+		var node = {time: delay + (new Date()).getTime(), value : obj };
+		var i = self._list.length - 1;		
+		while (i >= 0 && node.time < self._list[i].time) {
+			i--;				
+		}
+		self._list.splice(i + 1, 0, node);
+	};
+	
+	this.dequeue = function () {
+		return self._list.shift().value;			
+	};
+	
+	this.head = function () {
+		return self._list[0];
+	};
+
+	this.addTime = function(delta) {
+		for(var i = 0; i < self._list.length; i++) {
+			self._list[i].time += delta;
+		}
+	}
+}
+
+/**
  * @constructor
  * 
  */
@@ -7,6 +39,7 @@ function Controller(map) {
 	this.typeName = "Controller";
 	this._queue = new PriorityQueue();
 	this._handle = null;
+	this._lastStoppedTime = (new Date).getTime();
 	this.interval = 0; //delay on timer in ms		
 	this.map = map;
 	
@@ -28,6 +61,8 @@ function Controller(map) {
 	
 	this.start = function() {
 		if (state != "running") {
+			//update the timestamps to reflect the current clock time
+			self._queue.addTime((new Date).getTime() - self._lastStoppedTime);
 			state = "running";
 			self._tick();
 		}
@@ -35,6 +70,8 @@ function Controller(map) {
 	
 	this.stop = function() {
 		state = "stopped";
+		//ensure that the queue state can be restored later to match time change
+		self._lastStoppedTime = (new Date).getTime();
 	};
 	
 	this._tick = function() {
