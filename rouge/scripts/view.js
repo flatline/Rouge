@@ -106,6 +106,7 @@ var gameFrameBuilder = new function GameFrameBuilder() {
 						  frame.playerXOffset(), 
 						  frame.playerYOffset());
 
+			// draw sprite for each indexed entity
 			for (var i in map.index) {
 				if (map.index.hasOwnProperty(i)) {
 					var item = map.index[i];
@@ -118,36 +119,14 @@ var gameFrameBuilder = new function GameFrameBuilder() {
 				}
 			}
 
-			var quad_width = frame.width  / (vc.tileWidth * 2);
-			var quad_height = frame.height / (vc.tileHeight * 2);
+			// hack - draw over the already-rendered squares with solid black.  Consider only 
+			// rendering landscape features, perhaps those already discovered, with partial alpha
+			// transparency.
+			var fov = new FieldOfView(map, 
+									  frame.height / vc.tileHeight,
+									  frame.width / vc.tileWidth);
 
-			// hack - black out POV tiles after they have been drawn
-			// todo - encapsulate quadrant stuff in fov package
-			var q1 = map.get_region(player.loc.row, 
-									player.loc.col, 
-									quad_height,
-									quad_width,
-									false, false);
-			var q2 = map.get_region(player.loc.row, 
-									player.loc.col - quad_width,
-									quad_height,
-									quad_width,
-									false, true);
-			var q3 = map.get_region(player.loc.row - quad_height, 
-									player.loc.col - quad_width,
-									quad_height,
-									quad_width,									
-									true, true);
-			var q4 = map.get_region(player.loc.row - quad_height, 
-									player.loc.col,
-									quad_height,
-									quad_width,
-									true, false);
-									
-			var hidden_tiles = map.field_of_view_hidden(q1);
-			hidden_tiles.push.apply(hidden_tiles, map.field_of_view_hidden(q2));
-			hidden_tiles.push.apply(hidden_tiles, map.field_of_view_hidden(q3));
-			hidden_tiles.push.apply(hidden_tiles, map.field_of_view_hidden(q4));
+			var hidden_tiles = fov.get_hidden_tiles(player.loc);
 
 			for (var i = 0; i < hidden_tiles.length; i++) {
 				var loc = hidden_tiles[i];
