@@ -157,15 +157,36 @@ function Map() {
 	 * @param tc - starting column, 0-based
 	 * @param h - height of region
 	 * @param w - width of region
+	 * @param reflect_cols - reverse the column order in the result set
+	 * @param reflect_rows - reverse the row order in the result set
 	 */
-	this.get_region = function(tr, tc, h, w) {
+	this.get_region = function(tr, tc, h, w, reflect_rows, reflect_cols) {
 		var result = [];
 		try {
-			var end = tr + h;
-			end = (end >= this.length) ? this.length - 1 : end;
-			for (i = tr; i < end; i++) {
+			var start, end, next, cmp;
+			if (reflect_rows) {
+				// reverse the traversal order
+				start = tr + h;
+				if (start > this._grid.length - 1) start = this._grid.length - 1;
+				end = tr;
+				if (end < 0) end = 0;
+				next = -1;
+				cmp = function(a, b) { return a > b };
+			}
+			else {
+				start = tr;
+				if (start < 0) start = 0;
+				end = tr + h;
+				if (end > this._grid.length - 1) end = this._grid.length - 1;
+				next = 1;
+				cmp = function(a, b) { return a < b };
+			}
+
+			for (i = start; cmp(i, end); i += next) {
 				var row = this.peek(i);
-				result.push(row.slice(tc, tc + w + 1));
+				var new_row = row.slice(tc, tc + w + 1);
+				if (reflect_cols) new_row.reverse();
+				result.push(new_row);
 			}
 		}
 		catch (e) {
@@ -222,6 +243,7 @@ function Map() {
 
 						for (; j < check_row.length; j++) {
 							var ubound = top_line(j);
+							// hack for 0th column - div by zero error in line fn?
 							if (isNaN(ubound)) ubound = region.length;
 							var lbound = bottom_line(j);
 							if (lbound == 0) lbound = -.001

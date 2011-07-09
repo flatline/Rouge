@@ -8,8 +8,8 @@
 var viewConstants = {
 	tileWidth: 32,
 	tileHeight: 32,
-	displayWidth: 480,
-	displayHeight: 480
+	displayWidth: 608,
+	displayHeight: 608
 };
 var vc = viewConstants;
 
@@ -118,11 +118,37 @@ var gameFrameBuilder = new function GameFrameBuilder() {
 				}
 			}
 
-			// hack - black out POV tiles
-			var q1 = map.get_region(player.loc.row, player.loc.col, 
-									frame.height / (vc.tileHeight * 2),
-									frame.width  / (vc.tileWidth * 2));
+			var quad_width = frame.width  / (vc.tileWidth * 2);
+			var quad_height = frame.height / (vc.tileHeight * 2);
+
+			// hack - black out POV tiles after they have been drawn
+			// todo - encapsulate quadrant stuff in fov package
+			var q1 = map.get_region(player.loc.row, 
+									player.loc.col, 
+									quad_height,
+									quad_width,
+									false, false);
+			var q2 = map.get_region(player.loc.row, 
+									player.loc.col - quad_width,
+									quad_height,
+									quad_width,
+									false, true);
+			var q3 = map.get_region(player.loc.row - quad_height, 
+									player.loc.col - quad_width,
+									quad_height,
+									quad_width,									
+									true, true);
+			var q4 = map.get_region(player.loc.row - quad_height, 
+									player.loc.col,
+									quad_height,
+									quad_width,
+									true, false);
+									
 			var hidden_tiles = map.field_of_view_hidden(q1);
+			hidden_tiles.push.apply(hidden_tiles, map.field_of_view_hidden(q2));
+			hidden_tiles.push.apply(hidden_tiles, map.field_of_view_hidden(q3));
+			hidden_tiles.push.apply(hidden_tiles, map.field_of_view_hidden(q4));
+
 			for (var i = 0; i < hidden_tiles.length; i++) {
 				var loc = hidden_tiles[i];
 				var drawX = loc.col * vc.tileWidth + frame.playerXOffset();
