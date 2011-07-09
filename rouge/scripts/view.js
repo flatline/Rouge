@@ -21,7 +21,33 @@ var ImageLoader = function() {
 	this.ready = false;
 	
 	this.init = function() {
-		var imgList = ["player1", "grass1", "stone1", "orc1", "elf1"];
+		var imgList = [
+			"player1", 
+			"stone1", 
+			"orc1", 
+			"elf1", 
+			"human",
+			"amazon",
+			"armor_leather",
+			"barbarian",
+			"boots_leather",
+			"chest",
+			"door_closed",
+			"door_open",
+			"grass1",
+			"grass2",
+			"grass3",
+			"human",
+			"longsword",
+			"pikeman",
+			"ranger",
+			"shield_small",
+			"spear",
+			"tile_dark",
+			"tile_light",
+			"wall1"
+		];
+
 		var loaded = 0;
 		var imgCount = imgList.length;	
 		var loadHandler = function() { 
@@ -90,7 +116,21 @@ var gameFrameBuilder = new function GameFrameBuilder() {
 						frame.drawRelativeToPlayer(item, ctx);
 					}
 				}
-			}				 
+			}
+
+			// hack - black out POV tiles
+			var q1 = map.get_region(player.loc.row, player.loc.col, 
+									frame.height / (vc.tileHeight * 2),
+									frame.width  / (vc.tileWidth * 2));
+			var hidden_tiles = map.field_of_view_hidden(q1);
+			for (var i = 0; i < hidden_tiles.length; i++) {
+				var loc = hidden_tiles[i];
+				var drawX = loc.col * vc.tileWidth + frame.playerXOffset();
+				var drawY = loc.row * vc.tileHeight + frame.playerYOffset();
+				ctx.fillStyle = "rgb(0,0,0)";
+				ctx.fillRect (drawX, drawY, 32, 32);
+			}
+
 			frame.showFPS(ctx);
 		};				  
 					  
