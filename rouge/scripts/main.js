@@ -167,23 +167,27 @@ function Map() {
 			if (reflect_rows) {
 				// reverse the traversal order
 				start = tr + h;
-				if (start > this._grid.length - 1) start = this._grid.length - 1;
+				if (start > this._grid.length) start = this._grid.length;
 				end = tr;
-				if (end < 0) end = 0;
+				if (end < -1) end = -1;
 				next = -1;
 				cmp = function(a, b) { return a > b };
 			}
 			else {
 				start = tr;
-				if (start < 0) start = 0;
+				if (start < -1) start = -1;
 				end = tr + h;
-				if (end > this._grid.length - 1) end = this._grid.length - 1;
+				if (end > this._grid.length) end = this._grid.length;
 				next = 1;
 				cmp = function(a, b) { return a < b };
 			}
 
 			for (i = start; cmp(i, end); i += next) {
 				var row = this.peek(i);
+				if (tc < 0) {
+					w = Math.floor(w + tc);
+					tc = 0;
+				}
 				var new_row = row.slice(tc, tc + w + 1);
 				if (reflect_cols) new_row.reverse();
 				result.push(new_row);

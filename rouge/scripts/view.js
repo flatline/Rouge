@@ -106,19 +106,6 @@ var gameFrameBuilder = new function GameFrameBuilder() {
 						  frame.playerXOffset(), 
 						  frame.playerYOffset());
 
-			// draw sprite for each indexed entity
-			for (var i in map.index) {
-				if (map.index.hasOwnProperty(i)) {
-					var item = map.index[i];
-					if (item.hasOwnProperty("loc") && 
-						!item.hasOwnProperty("static") && 
-						item["static"] !== true) 
-					{
-						frame.drawRelativeToPlayer(item, ctx);
-					}
-				}
-			}
-
 			// hack - draw over the already-rendered squares with solid black.  Consider only 
 			// rendering landscape features, perhaps those already discovered, with partial alpha
 			// transparency.
@@ -128,11 +115,25 @@ var gameFrameBuilder = new function GameFrameBuilder() {
 
 			var hidden_tiles = fov.get_hidden_tiles(player.loc);
 
+			// draw sprite for each indexed entity
+			for (var i in map.index) {
+				if (map.index.hasOwnProperty(i)) {
+					var item = map.index[i];
+					if (item.hasOwnProperty("loc") && 
+						!item.hasOwnProperty("static") && 
+						item["static"] !== true &&
+						!fov.is_tile_hidden(item.loc))
+					{
+						frame.drawRelativeToPlayer(item, ctx);
+					}
+				}
+			}
+
 			for (var i = 0; i < hidden_tiles.length; i++) {
 				var loc = hidden_tiles[i];
 				var drawX = loc.col * vc.tileWidth + frame.playerXOffset();
 				var drawY = loc.row * vc.tileHeight + frame.playerYOffset();
-				ctx.fillStyle = "rgb(0,0,0)";
+				ctx.fillStyle = "rgba(0,0,0, .5)";
 				ctx.fillRect (drawX, drawY, 32, 32);
 			}
 

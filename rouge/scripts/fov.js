@@ -1,13 +1,43 @@
 /**
  * Logic for generating the field of view of the player.  This could also potentially provide other 
  * line of sight algorithms for npc targeting, etc.
+ *
+ * The FOV object should be considered read-only; when something in the environment has changed,
+ * a new object should be constructed.
  */
-
 function FieldOfView(map, region_height, region_width) {
 	this.map = map;
 	this.region_height = region_height;
 	this.region_width = region_width;
+	this._hidden_tiles = null;
+	this._hidden_lookup = null;
 }
+
+/**
+ * Returns true if a stack in a row contains an item with the "opaque" property set to true.
+ */
+FieldOfView.prototype.is_tile_opaque = function(tile) {
+	var opaque = false;
+	for (var i = 0; i < tile.length; i++) {
+		var item = tile[i];
+		if (item.hasOwnProperty("opaque") && item["opaque"]) {
+			return true;
+		}
+	}
+	return false;
+};
+
+/**
+ * If the tile is obscured from the point of view of the origin
+ * @param loc - a cell on the map with "row" and "col" properties
+ */
+FieldOfView.prototype.is_tile_hidden = function(loc) {
+	if (!this._hidden_lookup) {
+		// populate the hidden list and lookup
+		this.get_hidden_tiles();
+	}
+	return this._hidden_lookup.hasOwnProperty([loc.row, loc.col]);
+};
 
 /**
  * Returns a list of tiles that cannot be seen from the specified origin, within the 
@@ -17,7 +47,13 @@ function FieldOfView(map, region_height, region_width) {
  * @param origin - an object with "row" and "col" properties, e.g. player.loc
  */
 FieldOfView.prototype.get_hidden_tiles = function(origin) {
-	hidden_tiles = [];
+	// one-time lazy evaluation of the list
+	if (this.hidden_tiles) {
+		return this.hidden_tiles;
+	}
+
+	this._hidden_tiles = [];
+	this._hidden_lookup = {};
 	var quad_width = this.region_width / 2;
 	var quad_height = this.region_height / 2;
 	var map = this.map;
@@ -43,56 +79,36 @@ FieldOfView.prototype.get_hidden_tiles = function(origin) {
 							quad_width,
 							true, false);
 	
-	this._find_hidden_tiles(q1, hidden_tiles);
-	this._find_hidden_tiles(q2, hidden_tiles);
-	this._find_hidden_tiles(q3, hidden_tiles);
-	this._find_hidden_tiles(q4, hidden_tiles);
+	this._find_hidden_tiles(q1);
+	this._find_hidden_tiles(q2);
+	this._find_hidden_tiles(q3);
+	this._find_hidden_tiles(q4);
 	
-	return hidden_tiles;
+	return this._hidden_tiles;
 };
 
 /**
  * Calculates the list of hidden tiles for quadrant 1, where the x/col and y/row coordinates
- * are positive with respect to the origin.  This is then performed for the remaining quadrants
+ * are positive with respect to the origin.  This must be performed for the remaining quadrants
  * by reflecting about the x and/or y axis the region of the map corresponding to the quadrant.
  *
  * @param region - a two-dimensional array of the quadrant in question; a subset of the map's
  *     internal grid representation is expected here, e.g. 
  *     [ [ [{Player}, {Tile}], [{Tile}] ],
  *       [ [{Tile}], [{Tile}] ] ]
- * 
- * @param hidden_tiles - in/out param, running list of tiles across all quadrants.  This yields
- *     the final result of the calculation.
  */
-FieldOfView.prototype._find_hidden_tiles = function(region, hidden_list) { //, origin) {
+FieldOfView.prototype._find_hidden_tiles = function(region) {
 	// return list of cells in the region that should not be shown from the point of origin
-	
-	// treat each cell as an idealized 1x1 square
-	var result = hidden_list;
-	
-	// currently Q1 only (row > 0, col > 0) - ideally would move out from origin.
-	// todo - make work in each direction from an origin in the center of a region, perhaps
-	// by reflection or change of direction in the line and comparison formulae
 	for (var row = 0; row < region.length; row++) {
 		current_row = region[row];
 		for (var col = 0; col < current_row.length; col++) {
+			// must check all squares for opacity, even those that are hidden, as 
+			// part of an opaque square may hide other squares that the square obscuring
+			// it does not explicitly hide.			
 			var current = current_row[col];
-			
-			// already hidden?
-			// todo: change to hash table for quick lookup, flatten before returning
-			if (result.indexOf(current) > -1) continue; 
-			
-			// search for a tile with an opaque item
-			var opaque = false;
-			for (var item_idx = 0; item_idx < current.length; item_idx++) {
-				var item = current[item_idx];
-				if (item.hasOwnProperty("opaque") && item["opaque"]) {
-					opaque = true;
-					break;
-				}
-			}
-			
-			if (opaque)
+
+			// search for a tile with an opaque item			
+			if (this.is_tile_opaque(current))
 			{
 				// create rulings, solve for x to walk each row in the grid.
 				var top_line = function(x) {
@@ -118,11 +134,12 @@ FieldOfView.prototype._find_hidden_tiles = function(region, hidden_list) { //, o
 						if (lbound == 0) lbound = -.001
 						var cell = check_row[j];
 						
-						if (result.indexOf(cell) == -1 && 
+						if (!this.is_tile_hidden(cell) && 
 							(i < ubound && i > lbound))
 						{
 							// this cell should be hidden
-							result.push(cell);
+							this._hidden_tiles.push(cell);
+							this._hidden_lookup[[cell.row, cell.col]] = 1;
 							// todo: early out here when past edge of line?
 						}
 					}
