@@ -10,7 +10,6 @@ function FieldOfView(map, region_height, region_width) {
 	this.region_height = region_height;
 	this.region_width = region_width;
 	this._hidden_tiles = null;
-	this._hidden_lookup = null;
 }
 
 /**
@@ -32,11 +31,16 @@ FieldOfView.prototype.is_tile_opaque = function(tile) {
  * @param loc - a cell on the map with "row" and "col" properties
  */
 FieldOfView.prototype.is_tile_hidden = function(loc) {
-	if (!this._hidden_lookup) {
+	if (this._hidden_tiles == null) {
 		// populate the hidden list and lookup
 		this.get_hidden_tiles();
 	}
-	return this._hidden_lookup.hasOwnProperty([loc.row, loc.col]);
+	return this._hidden_tiles.indexOf(loc) != -1;
+	
+	// tried to do an object/hash table as lookup, performance was bad when done like this,
+	// not sure if it's the setup of the array or the lookup itself that's killing it but 
+	// may well be worth revisiting.
+	// return this._hidden_lookup.hasOwnProperty([loc.row, loc.col]);
 };
 
 /**
@@ -53,7 +57,6 @@ FieldOfView.prototype.get_hidden_tiles = function(origin) {
 	}
 
 	this._hidden_tiles = [];
-	this._hidden_lookup = {};
 	var quad_width = this.region_width / 2;
 	var quad_height = this.region_height / 2;
 	var map = this.map;
@@ -139,7 +142,6 @@ FieldOfView.prototype._find_hidden_tiles = function(region) {
 						{
 							// this cell should be hidden
 							this._hidden_tiles.push(cell);
-							this._hidden_lookup[[cell.row, cell.col]] = 1;
 							// todo: early out here when past edge of line?
 						}
 					}
