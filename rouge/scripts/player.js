@@ -1,7 +1,7 @@
 function Player() {
 	var self = this;
 	this.typeName = "Player";
-	this.repr = "player1";
+	this.repr = "people:2,2";
 	this.action = null;
 	this.type = "Player";
 	this.name = "Player";

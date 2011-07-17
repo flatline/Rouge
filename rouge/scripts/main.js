@@ -200,20 +200,6 @@ function Map() {
 	};
 }
 
-/**
- * Debug - lays down a default set of tiles ('.') on each square of a map.
- * @param {Map} map - the map to tile 
- */
-function tileMap(map) {
-	var width = map.width;
-	var height = map.height;
-	for (var i = 0; i < height; i++) {
-		for (var j =0; j < width; j++) {
-			map.poke({ repr: "grass1", "static": true }, i, j);
-		}			
-	}		 
-}
-
 function debug(val) {
 	$("#debug ul")
 		.prepend("<li><div class='debug-time'>" +

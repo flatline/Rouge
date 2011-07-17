@@ -13,63 +13,9 @@ var viewConstants = {
 };
 var vc = viewConstants;
 
-var ImageLoader = function() {
-	//wait to preload all images, then populate this as a hashtable
-	//$(document).append("<p>loading images...</p>");
-	var self = this;
-	
-	this.ready = false;
-	
-	this.init = function() {
-		var imgList = [
-			"player1", 
-			"stone1", 
-			"orc1", 
-			"elf1", 
-			"human",
-			"amazon",
-			"armor_leather",
-			"barbarian",
-			"boots_leather",
-			"chest",
-			"door_closed",
-			"door_open",
-			"grass1",
-			"grass2",
-			"grass3",
-			"human",
-			"longsword",
-			"pikeman",
-			"ranger",
-			"shield_small",
-			"spear",
-			"tile_dark",
-			"tile_light",
-			"wall1"
-		];
-
-		var loaded = 0;
-		var imgCount = imgList.length;	
-		var loadHandler = function() { 
-			if (++loaded >= imgCount) {
-				self.ready = true;
-				self.raiseEvent("ready", this);
-					}	
-		};
-		
-		for (var i = 0; i < imgCount; i++) {
-			var img = new Image();
-			img.onload = loadHandler;
-			img.src = "images/" + imgList[i] + ".png";
-			self[imgList[i]] = img;
-		}
-	}
-}
-
 /**
  * Factory methods for frames that the View composes to render the scene
  */
-
 var gameFrameBuilder = new function GameFrameBuilder() {
 	this.build = function(map, imageTable, backgroundImage, attrs) {
 		var timings = [];
@@ -263,7 +209,7 @@ function HtmlMapView(controller) {
 		self.initListeners();
 		controller.addEventHandler("tick", self.renderMap);
 		
-		imageTable = new ImageLoader();
+		imageTable = new ImageTable();
 		self.initFrames();
 		
 		//preload images - we don't have any way to properly wait, have to 

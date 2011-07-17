@@ -13,14 +13,15 @@
 	<script type="text/javascript" src="scripts/npc.js"></script>
 	<script type="text/javascript" src="scripts/frame.js"></script>
 	<script type="text/javascript" src="scripts/gamestorage.js"></script>
-	<script type="text/javascript" src="scripts/fov.js"></script>
+	<script type="text/javascript" src="scripts/fov.js"></script>	
+	<script type="text/javascript" src="scripts/imageTable.js"></script>
 	<script type="text/javascript" src="scripts/view.js"></script>
 	<script type="text/javascript" src="scripts/pickler.js"></script>
 	<script type="text/javascript">
 
     function Wall() {
 		this.typeName = "Wall";
-		this.repr = "wall1";
+		this.repr = "dungeon:0,0";
 		this.tryToPass = function() { return false; };
 		this.static = true;
 	    this.opaque = true;
@@ -62,9 +63,12 @@
 
 		//alternate light/dark tiles on each row
 		for (var i = 0; i < 30; i++) {
-			for (var j = 0; j < 30; j+=2) {
-				map.poke({ repr: "tile_dark", "static" : true },  i, j + i%2);
-				map.poke({ repr: "tile_light", "static" : true }, i, j + (i%2 ? 0 : 1));
+			// for (var j = 0; j < 30; j+=2) {
+			// 	map.poke({ repr: "grounds:0,4", "static" : true },  i, j + i%2);
+			// 	map.poke({ repr: "grounds:0,3", "static" : true }, i, j + (i%2 ? 0 : 1));
+			// }
+			for (var j = 0; j < 30; j++) {
+				map.poke({ repr: "grounds:0,4", "static" : true },  i, j);
 			}
 		}
 
