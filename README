@@ -1,9 +1,11 @@
 This is a small personal project of building a rougelike game using javascript/canvas.  As JS engines have gotten significantly faster over recent years, I thought it would be fun to build a realtime (or pseudo-realtime) game and see how many concurrent actors I could have doing interesting things.
 
+All graphics, unless otherwise noted, are from the Angband ToME tileset by David Gervais.  They are used here under the Creative Commons 3.0 license.  More information can be found at http://pousse.rapiere.free.fr/tome/ or http://creativecommons.org/licenses/by/3.0/.
+
 The project has a thin Google AppEngine wrapper, currently just hosting static content.   At some point I will aim for online game storage but currently it is using localStorage for persistence and there is only a stubbed-out REST endpoint for saving games.
 
-Current status: not much to look at right now
+Current status:
  - There is a basic MVC structure in place for the core of the game
- - There is a basic test page at main.htm.  I plan on building out a number of different, similar pages to develop and test different aspects of the game before starting in on world generation and overarching plotlines, if it ever gets that far.
- - Saving games works but there are probably some issues around saving/restoring timing info in the controller.
- - There's not much in the way of graphics, it's currently using a couple items from the standard nethack tileset, I will probably stick with something similar and upload a more complete set in the near future.
+ - There is a basic test page at main.htm, and a test for the field of view algorithm at rooms.html.  I plan on building out a number of different, similar pages to develop and test different aspects of the game before starting in on world generation and overarching plotlines, if it ever gets that far.
+ - After much searching I found the excellent ToME tilset, which had support for transparency and a large variety of images.  A subset of these can be found, converted into alpha-layer png files, in the images directory.
+
