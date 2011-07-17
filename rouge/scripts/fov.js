@@ -112,16 +112,7 @@ FieldOfView.prototype._find_hidden_tiles = function(region) {
 
 			// search for a tile with an opaque item			
 			if (this.is_tile_opaque(current))
-			{
-				// create rulings, solve for x to walk each row in the grid.
-				var top_line = function(x) {
-					return ((row + 1) / col) * (x - col) + row + 1;
-				}
-				
-				var bottom_line = function(x) {
-					return (row / (col + 1)) * (x - col - 1) + row;						
-				}
-				
+			{				
 				// check whether each visible tile falls in the region between the lines
 				for (var i = row; i < region.length; i++) {
 					var check_row = region[i];
@@ -130,10 +121,10 @@ FieldOfView.prototype._find_hidden_tiles = function(region) {
 					var j = (i == row) ? col + 1 : 0;
 					
 					for (; j < check_row.length; j++) {
-						var ubound = top_line(j);
+						var ubound = ((row + 1) / col) * (j - col) + row + 1;
 						// hack for 0th column - div by zero error in line fn?
 						if (isNaN(ubound)) ubound = region.length;
-						var lbound = bottom_line(j);
+						var lbound = (row / (col + 1)) * (j - col - 1) + row;
 						if (lbound == 0) lbound = -.001
 						var cell = check_row[j];
 						
