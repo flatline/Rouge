@@ -1,45 +1,45 @@
 function NPC(spec) {
-	var self = this;
 	this.typeName = "NPC";
 	this.name = "NPC";
 	this.type = "NPC";
 	this.HD = 2;
-	this.hitPoints = Math.round(self.HD * Math.random() * 6) + 1
-	this.currentStrategy = new WanderStrategy(self); //start state
-	this.currentStrategyName = typeof self.currentStrategy;
+	this.hitPoints = Math.round(this.HD * Math.random() * 6) + 1
+	this.currentStrategy = new WanderStrategy(this); //start state
+	this.currentStrategyName = typeof this.currentStrategy;
+}
 	
-	this.setCurrentStrategy = function(strategy, name) {
-		self.currentStrategy = strategy;
-		self.currentStrategyName = name;
+NPC.prototype = new Character();
+
+NPC.prototype.setCurrentStrategy = function(strategy, name) {
+	this.currentStrategy = strategy;
+	this.currentStrategyName = name;
+};
+
+NPC.prototype.getNextAction = function(ctrl) {
+	//scan area for player
+	var map = ctrl.map;
+	var dist = map.distance(map.player.loc, this.loc);
+	var sName = this.currentStrategyName;
+	
+	//update currentStrategy based on percepts
+	//TODO: build a better model for state transitions and strategy 
+	//selection.
+	if (dist <= 7 && dist > 1) {
+		if (sName !== "FollowStrategy") 
+			this.setCurrentStrategy(new FollowStrategy(this, map.player), 
+									"FollowStrategy");			
+	} else if (dist <= 1) {
+		if (sName !== "CombatStrategy") 
+			this.setCurrentStrategy(new CombatStrategy(this, map.player), 
+									"CombatStrategy");
+	} else {
+		if (sName !== "WanderStrategy")
+			this.setCurrentStrategy(new WanderStrategy(this), 
+									"WanderStrategy");
 	}
 	
-	this.getNextAction = function(ctrl) {
-		//scan area for player
-		var map = ctrl.map;
-		var dist = map.distance(map.player.loc, self.loc);
-		var sName = this.currentStrategyName;
-		
-		//update currentStrategy based on percepts
-		//TODO: build a better model for state transitions and strategy 
-		//selection.
-		if (dist <= 7 && dist > 1) {
-			if (sName !== "FollowStrategy") 
-				self.setCurrentStrategy(new FollowStrategy(self, map.player), 
-										"FollowStrategy");			
-		} else if (dist <= 1) {
-			if (sName !== "CombatStrategy") 
-				self.setCurrentStrategy(new CombatStrategy(self, map.player), 
-										"CombatStrategy");
-		} else {
-			if (sName !== "WanderStrategy")
-				self.setCurrentStrategy(new WanderStrategy(self), 
-										"WanderStrategy");
-		}
-		
-		return self.currentStrategy.getNextAction(ctrl, self);
-	}		
-}
-NPC.prototype = new Character();
+	return this.currentStrategy.getNextAction(ctrl, this);
+};
 
 function WanderStrategy(actor) {
 	var self = this;

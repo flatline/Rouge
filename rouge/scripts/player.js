@@ -1,5 +1,8 @@
+/**
+ * The player character and associated logic for handling commands and user
+ * actions.
+ */
 function Player() {
-	var self = this;
 	this.typeName = "Player";
 	this.repr = "people:2,2";
 	this.action = null;
@@ -13,64 +16,66 @@ function Player() {
 	//cache up to 2 commands, don't accept more until one has executed.
 	this.queuedAction = null;
 	
-	this.locked = false;
-	
-	/**
-	* Handles setting the action from the view; will schedule the action 
-	* automatically and handle queueing.
-	*/
-	this.setAction = function(action, controller) {
-		try {			
-			var schedule = false;
-			if (typeof(self.action) === "undefined" || self.action === null) {
-				self.action = action;
-				schedule = true;
-			} else if (typeof(self.queuedAction) === "undefined" || 
-					   self.queuedAction === null) 
-			{
-				self.queuedAction = action;
-			} //else ignore
-			
-			//this.act() will continue scheduling until the queued action and
-			//"current" action are complete.						
-			if (schedule) {
-				var delay = self.timeout - (new Date()).getTime();		
-				controller.schedule(self, delay);
-			}
-		} catch (e) {
-			debug("Player.setAction error: " + e);
-		}
-	};
-	
-	this.act = function(controller) {
-		//rely on the view to set the action based on user input
-		if (typeof(self.action) === "undefined" || self.action === null) 
-			return;
-		
-		try {
-			self.action.execute();
-			self.timeout = (new Date()).getTime() + self.action.delay;
-			
-			//handle queued action
-			if (typeof(self.queuedAction) !== "undefined" && 
-				self.queuedAction !== null) 
-			{
-				controller.schedule(self, self.action.delay);
-			}
-			
-			self.action = self.queuedAction;
-			self.queuedAction = null;		
-		} catch (e) {
-			debug("Player.act error: " + e);
-		}
-	};
-	
-	this.clearActions = function() {
-		self.action = null;
-		self.queuedAction = null;
-	}
+	this.locked = false;	
 }
+
 Player.prototype = new Character();
+
+/**
+ * Handles setting the action from the view; will schedule the action 
+ * automatically and handle queueing.
+ */
+Player.prototype.setAction = function(action, controller) {
+	try {			
+		var schedule = false;
+		if (typeof(this.action) === "undefined" || this.action === null) {
+			this.action = action;
+			schedule = true;
+		} else if (typeof(this.queuedAction) === "undefined" || 
+				   this.queuedAction === null) 
+		{
+			this.queuedAction = action;
+		} //else ignore
+		
+		//this.act() will continue scheduling until the queued action and
+		//"current" action are complete.						
+		if (schedule) {
+			var delay = this.timeout - (new Date()).getTime();		
+			controller.schedule(this, delay);
+		}
+	} catch (e) {
+		debug("Player.setAction error: " + e);
+	}
+};
+
+Player.prototype.act = function(controller) {
+	//rely on the view to set the action based on user input
+	if (typeof(this.action) === "undefined" || this.action === null) 
+		return;
+	
+	try {
+		this.action.execute();
+		this.timeout = (new Date()).getTime() + this.action.delay;
+		
+		//handle queued action
+		if (typeof(this.queuedAction) !== "undefined" && 
+			this.queuedAction !== null) 
+		{
+			controller.schedule(this, this.action.delay);
+		}
+		
+		this.action = this.queuedAction;
+		this.queuedAction = null;		
+	} catch (e) {
+		debug("Player.act error: " + e);
+	}
+};
+
+Player.prototype.clearActions = function() {
+	this.action = null;
+	this.queuedAction = null;
+};
+
 
 //TODO:	 cached commands are often stale, e.g. a stale attack command that should have been converted to a move
 //should use builder pattern and delay to store the command code and generate the command when it's used.
