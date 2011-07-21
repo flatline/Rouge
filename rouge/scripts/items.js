@@ -9,9 +9,8 @@ Item.prototype.copySpec = function(spec) {
 }
 
 function Weapon() {
-	this.type = "Weapon";
+	this.typeName = "Weapon";
 	this.itemType = "weapon";
-	this.id = world.getID();
 }
 Weapon.prototype = new Item();
 
@@ -40,27 +39,27 @@ var FoodBuilder = new function foodBuilder(key) {
 
 var FoodTable = {
 	"shroom_orange" : {
-		"name" : "orange shroom",
+		"descr" : "an orange shroom",
 		"repr" : "food:2,0",
 		"weight" : .1
 	},
 	"shroom_red" : {
-		"name" : "red shroom",
+		"descr" : "a red shroom",
 		"repr" : "food:2,1",
 		"weight" : .1
 	},
 	"shroom_green" : {
-		"name" : "green shroom",
+		"descr" : "a green shroom",
 		"repr" : "food:2,2",
 		"weight" : .1
 	},
 	"shroom_blue" : {
-		"name" : "blue shroom",
+		"descr" : "a blue shroom",
 		"repr" : "food:2,3",
 		"weight" : .1
 	},
 	"shroom_brown" : {
-		"name" : "brown shroom",
+		"descr" : "a brown shroom",
 		"repr" : "food:2,4",
 		"weight" : .1
 	}
@@ -68,28 +67,28 @@ var FoodTable = {
 
 var WeaponsTable = {
 	"shortsword" : {
-		"name" : "shortsword",
+		"descr" : "a shortsword",
 		"skill" : "sword",
 		"repr" : "weapons:1,0",
 		"dmg" : 6,
 		"weight" : 2
 	},
 	"longsword" : {
-		"name" : "longsword",
+		"descr" : "a longsword",
 		"skill" : "longsword",
 		"repr" : "weapons:1,2",
 		"dmg" : 8,
 		"weight" : 3
 	},
 	"broadsword" : {
-		"name" : "broadsword",
+		"descr" : "a broadsword",
 		"skill" : "longsword",
 		"repr" : "weapons:1,3",
 		"dmg" : 7,
 		"weight" : 2.5
 	},
 	"greatsword" : {
-		"name" : "greatsword",
+		"descr" : "greatsword",
 		"skill" : "greatsword",
 		"repr" : "weapons:1,6",
 		"dmg" : 12,

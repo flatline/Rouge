@@ -117,9 +117,9 @@ Character.prototype.die = function(map) {
 Character.prototype.pickup = function(map) {
 	for (var i = this.loc.length - 1; i > 0; i--) {
 		var item = this.loc[i];
-		if (item.hasOwnProperty("itemType")) {
+		if ("itemType" in item) {
 			this.inventory.push(map.yank(item));
-			map.messages.push(this.name + " picked up " + item.name);
+			map.messages.push(this.name + " picked up " + item.descr);
 			break;
 		}
 	}

@@ -88,7 +88,7 @@ function Map() {
 	 */
 	this.poke = function(obj, row, col, idx) {
 		var cell = self.peek(row, col);
-		if (obj.hasOwnProperty("id")) self.index[obj.id] = obj;
+		if ("id" in obj) self.index[obj.id] = obj;
 		obj.loc = cell;
 		if (typeof idx != "undefined") {
 			cell.splice(idx, 0, obj);

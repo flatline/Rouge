@@ -179,20 +179,21 @@ function bind(object, fn) {
 if (!Object.prototype.addEventHandler) {
 	Object.prototype.addEventHandler = function(evtName, fn) {
 		var propName = "__event_" + evtName;
-		if (!this.hasOwnProperty(propName)) this[propName] = []; 
-		this[propName].push(fn);		
-	}		
+		if (!(propName in this)) this[propName] = []; 
+		this[propName].push(fn);
+	}
 }
 
 if (!Object.prototype.removeEventHandler) {
 	Object.prototype.removeEventHandler = function(evtName, fn) {
 		var propName = "__event_" + evtName;		
-		if (this.hasOwnProperty(propName)) {
+		if (propName in this) {
 			var handlers = this[propName];
 			var match = false;
 			for (var i = 0; i < handlers.length; i++) {
 				if (handlers[i] === fn) { 
-					match = true; break; 
+					match = true; 
+					break; 
 				}
 			}
 			if (match) handlers = handlers.slice(i, 1);
@@ -203,8 +204,8 @@ if (!Object.prototype.removeEventHandler) {
 if (!Object.prototype.raiseEvent) {
 	Object.prototype.raiseEvent = function(evtName /*, arg1, ..., argn */) {
 		var propName = "__event_" + evtName;
-		if (this.hasOwnProperty(propName)) {
-			var handlers = this[propName];			
+		if (propName in this) {
+			var handlers = this[propName];
 			var args = Array.prototype.slice.call(arguments).slice(1); //get rid of evtName			
 			for (var i = 0; i < handlers.length; i++) {
 				var handler = handlers[i];

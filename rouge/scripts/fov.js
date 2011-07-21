@@ -19,7 +19,7 @@ FieldOfView.prototype.is_tile_opaque = function(tile) {
 	var opaque = false;
 	for (var i = 0; i < tile.length; i++) {
 		var item = tile[i];
-		if (item.hasOwnProperty("opaque") && item["opaque"]) {
+		if ("opaque" in item && item["opaque"]) {
 			return true;
 		}
 	}
@@ -40,7 +40,6 @@ FieldOfView.prototype.is_tile_hidden = function(loc) {
 	// tried to do an object/hash table as lookup, performance was bad when done like this,
 	// not sure if it's the setup of the array or the lookup itself that's killing it but 
 	// may well be worth revisiting.
-	// return this._hidden_lookup.hasOwnProperty([loc.row, loc.col]);
 };
 
 /**
@@ -121,9 +120,8 @@ FieldOfView.prototype._find_hidden_tiles = function(region) {
 					var j = (i == row) ? col + 1 : 0;
 					
 					for (; j < check_row.length; j++) {
-						var ubound = ((row + 1) / col) * (j - col) + row + 1;
-						// hack for 0th column - div by zero error in line fn?
-						if (isNaN(ubound)) ubound = region.length;
+						var ubound = (col == 0) ? region.length :
+							((row + 1) / col) * (j - col) + row + 1;
 						var lbound = (row / (col + 1)) * (j - col - 1) + row;
 						if (lbound == 0) lbound = -.001
 						var cell = check_row[j];

@@ -34,7 +34,7 @@ var gameFrameBuilder = new function GameFrameBuilder() {
 						var cell = row[j];
 						var ground = cell[0];
 						var statics = cell.filter(function (item) { 
-							return item.hasOwnProperty("static") && 
+							return "static" in item && 
 								   item["static"] === true 
 						});
 						for (var k = 0; k < statics.length; k++) {
@@ -65,8 +65,7 @@ var gameFrameBuilder = new function GameFrameBuilder() {
 			for (var i in map.index) {
 				if (map.index.hasOwnProperty(i)) {
 					var item = map.index[i];
-					if (item.hasOwnProperty("loc") && 
-						!item.hasOwnProperty("static") && 
+					if ("loc" in item &&
 						item["static"] !== true &&
 						!fov.is_tile_hidden(item.loc))
 					{
@@ -100,7 +99,7 @@ var gameFrameBuilder = new function GameFrameBuilder() {
 			var loc = sprite.loc;
 			var drawX = loc.col * vc.tileWidth;
 			var drawY = loc.row * vc.tileHeight;
-			if (imageTable.hasOwnProperty(sprite.repr)) {
+			if (sprite.repr in imageTable) {
 				var img = imageTable[sprite.repr];
 				ctx.drawImage(img, drawX, drawY);
 			} else {
@@ -112,7 +111,7 @@ var gameFrameBuilder = new function GameFrameBuilder() {
 			var loc = sprite.loc;
 			var drawX = loc.col * vc.tileWidth + frame.playerXOffset();
 			var drawY = loc.row * vc.tileHeight + frame.playerYOffset();
-			if (imageTable.hasOwnProperty(sprite.repr)) {
+			if (sprite.repr in imageTable) {
 				var img = imageTable[sprite.repr];
 				ctx.drawImage(img, drawX, drawY);
 			} else {
