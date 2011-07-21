@@ -113,6 +113,12 @@ function makePlayerMoveCommand (dir) {
 	};
 }
 
+function makePlayerPickupCommand() {
+	return function(map, actor) {
+		actor.pickup(map);
+	};
+}
+
 var playerCommands = {
 	"k37" : makePlayerMoveCommand("w"),
 	"k38" : makePlayerMoveCommand("n"),
@@ -125,5 +131,6 @@ var playerCommands = {
 	"k102" : makePlayerMoveCommand("e"),
 	"k103" : makePlayerMoveCommand("nw"),
 	"k104" : makePlayerMoveCommand("n"),
-	"k105" : makePlayerMoveCommand("ne")
+	"k105" : makePlayerMoveCommand("ne"),
+	"k188" : makePlayerPickupCommand()
 };

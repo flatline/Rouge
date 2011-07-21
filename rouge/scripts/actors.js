@@ -52,15 +52,19 @@ Actor.prototype.tryToPass = function() { return false; };
  * A character can do more than just the basic actor; currently move, attack,
  * and die.
  */
-function Character() {
-	
+function Character() {	
 	this.type = "Character";
 	this.name = "Character";	
 	this.hitPoints = Math.random() * 12;
 	this.accuracy = 5;
 	this.dodge = 1;
+
+	// default hand-to-hand damage
 	this.dmg = 4;
 	this.dmgResist = 1;	
+
+	this.weapon = null;
+	this.inventory = [];
 }
 
 Character.prototype = new Actor();
@@ -105,4 +109,18 @@ Character.prototype.die = function(map) {
 	this.active = false;
 	map.messages.push(this.name + " has died");
 	map.yank(this);		
+};
+
+/**
+ * Pick up the topmost item on the stack, if any
+ */
+Character.prototype.pickup = function(map) {
+	for (var i = this.loc.length - 1; i > 0; i--) {
+		var item = this.loc[i];
+		if (item.hasOwnProperty("itemType")) {
+			this.inventory.push(map.yank(item));
+			map.messages.push(this.name + " picked up " + item.name);
+			break;
+		}
+	}
 };
