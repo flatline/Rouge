@@ -173,7 +173,18 @@ var messageFrameBuilder = new function MessageFrameBuilder() {
 		
 		return msgFrame;
 	}
-}
+};
+
+var inventoryFrameBuilder = new function InventoryFrameBuilder() {
+	this.build = function(map, frameAttrs) {
+		var invFrame = new Frame(frameAttrs);
+		
+		invFrame.draw = function(ctx) {
+			invFrame.fill(ctx, "#000");
+			invFrame.border(ctx, "#888", 3);
+		};
+	};
+};
 
 /**
  * The view class, rendered to canvas
@@ -201,9 +212,9 @@ function HtmlMapView(controller) {
 							map.width * vc.tileWidth + "' height='" + 
 							map.height * vc.tileHeight + "'></canvas>")[0];
 		
-		$("body").append(canvas).append(backgroundImage);
-		$("body").append('<div id="debug" style="width: 100%; overflow-y:' +
-						 'scroll; height: 300px"><ul></ul></div>');
+		$("#game_view").append(canvas).append(backgroundImage);
+		// $("#game_view").append('<div id="debug" style="width: 100%; overflow-y:' +
+		//				 'scroll; height: 300px"><ul></ul></div>');
 		
 		self.initListeners();
 		controller.addEventHandler("tick", self.renderMap);

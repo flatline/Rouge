@@ -1,4 +1,25 @@
 
+// todo: remove
+function debug(val) {
+	$("#debug ul")
+		.prepend("<li><div class='debug-time'>" +
+				 new Date().toLocaleTimeString() +
+				 "</div><span>" +
+				 val + 
+				 "</span></li>");
+}
+
+// todo: remove
+function assert(val, failMsg, successMsg) {
+	if (!val) {
+		if (typeof failMsg != "undefined") debug("Assert failed: " + failMsg);
+		else debug("Assert failed");
+	} else {
+		if (typeof successMsg != "undefined") debug("Assert passed: " + successMsg);
+		else debug("Assert passed");
+	}
+}
+
 /**
 * A range function, returns an array of integers in the range
 * forms:
@@ -180,7 +201,8 @@ if (!Object.prototype.addEventHandler) {
 	Object.prototype.addEventHandler = function(evtName, fn) {
 		var propName = "__event_" + evtName;
 		if (!(propName in this)) this[propName] = []; 
-		this[propName].push(fn);
+		var self = this;
+		this[propName].push(bind(self, fn));
 	}
 }
 
@@ -206,11 +228,11 @@ if (!Object.prototype.raiseEvent) {
 		var propName = "__event_" + evtName;
 		if (propName in this) {
 			var handlers = this[propName];
-			var args = Array.prototype.slice.call(arguments).slice(1); //get rid of evtName			
+			var args = Array.prototype.slice.call(arguments).slice(1); //get rid of evtName
 			for (var i = 0; i < handlers.length; i++) {
 				var handler = handlers[i];
 				//we're getting this==window sometimes if we mess up a this pointer, and it behaves weird
-				if (typeof handler == "undefined") return;								
+				if (typeof handler == "undefined") return;
 				handler.apply(this, args);
 			}
 		}

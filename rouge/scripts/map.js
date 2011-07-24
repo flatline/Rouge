@@ -199,22 +199,3 @@ function Map() {
 		return result;
 	};
 }
-
-function debug(val) {
-	$("#debug ul")
-		.prepend("<li><div class='debug-time'>" +
-				 new Date().toLocaleTimeString() +
-				 "</div><span>" +
-				 val + 
-				 "</span></li>");
-}
-
-function assert(val, failMsg, successMsg) {
-	if (!val) {
-		if (typeof failMsg != "undefined") debug("Assert failed: " + failMsg);
-		else debug("Assert failed");
-	} else {
-		if (typeof successMsg != "undefined") debug("Assert passed: " + successMsg);
-		else debug("Assert passed");
-	}
-}
