@@ -1,11 +1,3 @@
-function Wall() {
-	this.typeName = "Wall";
-	this.repr = "dungeon:0,0";
-	this.tryToPass = function() { return false; };
-	this.static = true;
-	this.opaque = true;
-}
-
 function WallBot(map) {
 	// procedural wall drawing algorithm
 	var self = this;
