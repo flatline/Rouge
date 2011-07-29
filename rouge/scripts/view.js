@@ -164,11 +164,6 @@ var messageFrameBuilder = new function MessageFrameBuilder() {
 						msgFrame.width);
 				} 
 			}
-			//dirty, but when else to we truncate?
-			if (messages.length > maxMessages) {
-				map.messages = messages.slice(messages.length - maxMessages, 
-											  messages.length + 1);
-			}
 		};
 		
 		return msgFrame;

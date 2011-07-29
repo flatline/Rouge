@@ -76,7 +76,7 @@ Character.prototype.attack = function(target, map) {
 		target.loc === null || 
 		!target.active) 
 	{
-		map.messages.push(this.name + " swings wildly at the air");
+		map.addMessage(this.name + " swings wildly at the air");
 		return;
 	}
 	
@@ -90,24 +90,24 @@ Character.prototype.attack = function(target, map) {
 			var dmg = Math.round(
 				this.dmg * Math.random() + 1 -
 					target.dmgResist * Math.random() + 1);
-			map.messages.push(this.name + " hit " + target.name + 
-							  " for " + dmg + " points of damage");
+			map.addMessage(this.name + " hit " + target.name + 
+						   " for " + dmg + " points of damage");
 			if (dmg >= 0) target.hitPoints -= dmg;
-			else map.messages.push(this.name + " lands a weak blow");
+			else map.addMessage(this.name + " lands a weak blow");
 			if (target.hitPoints <= 0) { 
 				target.die(map);					
 			}
 		} else {
-			map.messages.push(this.name + " swings and misses");
+			map.addMessage(this.name + " swings and misses");
 		}
 	} else {
-		map.messages.push(this.name + " swings at thin air");
+		map.addMessage(this.name + " swings at thin air");
 	}
 };
 
 Character.prototype.die = function(map) {
 	this.active = false;
-	map.messages.push(this.name + " has died");
+	map.addMessage(this.name + " has died");
 	map.yank(this);		
 };
 
@@ -119,7 +119,7 @@ Character.prototype.pickup = function(map) {
 		var item = this.loc[i];
 		if ("itemType" in item) {
 			this.inventory.push(map.yank(item));
-			map.messages.push(this.name + " picked up " + item.descr);
+			map.addMessage(this.name + " picked up " + item.descr);
 			break;
 		}
 	}

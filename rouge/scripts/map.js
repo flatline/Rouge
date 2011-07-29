@@ -23,13 +23,13 @@ function Map() {
 	
 	this.actions = [];
 	this.messages = [];
+	this.maxMessages = 10;
 	
 	this.height = 0;
 	this.width = 0;
 
 	this.player = null;
 }
-
 
 /**
  * Build the map out with empty cell refs at each locus
@@ -135,6 +135,19 @@ Map.prototype.move = function(obj, row, col, idx) {
 		return this.yank(obj).poke(obj, row, col, idx);
 	} else {
 		return this;
+	}
+};
+
+/**
+ * Add a message to the list
+ */
+Map.prototype.addMessage = function(msg) {
+	this.messages.push(msg);
+	
+	// truncate list
+	if (this.messages.length > this.maxMessages) {
+		this.messages = this.messages.slice(this.messages.length - this.maxMessages, 
+											this.messages.length + 1);
 	}
 };
 
