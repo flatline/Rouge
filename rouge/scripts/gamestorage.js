@@ -1,12 +1,13 @@
 /**
- * Currently uses localStorage to manage saved games.
+ * Global/singleton abstraction, currently uses localStorage to manage saved games.
+ * @link pickler.js
  */
 var gameStorage = new function GameStorage() {
 	
 	this.saveGame = function(gameId, ctrl) {
 		var p = new Pickler();
-		localStorage.setItem("rouge.game." + gameId, p.pickle(ctrl));		 
-	}
+		localStorage.setItem("rouge.game." + gameId, p.pickle(ctrl));
+	};
 	
 	this.loadGame = function(gameId) {
 		var saved = localStorage.getItem("rouge.game." + gameId);
@@ -14,7 +15,7 @@ var gameStorage = new function GameStorage() {
 			var p = new Pickler();
 			return p.unpickle(saved);
 		}
-	}
+	};
 	
 	this.listGames = function() {
 		var list = [];
@@ -24,5 +25,5 @@ var gameStorage = new function GameStorage() {
 			if (rx.test(key)) list.push(rx.exec(key)[1]);
 		}
 		return list;
-	}
+	};
 }
