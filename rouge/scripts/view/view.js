@@ -44,10 +44,10 @@ HtmlMapView.prototype.init = function() {
 	this.display.fillText("Loading images...", 200, 144);
 	
 	(new EventChain())
-		.add(this.imageTable.init, this.imageTable, "ready")
-		.add(this.gameFrame.prerenderBackground, this.gameFrame, 
+		.add(bind(this.imageTable, this.imageTable.init), this.imageTable, "ready")
+		.add(bind(this.gameFrame, this.gameFrame.prerenderBackground), this.gameFrame, 
 			 "prerenderComplete")
-		.execute(this.controller.start);		
+		.execute(bind(this.controller, this.controller.start));		
 };	
 
 /**
@@ -57,34 +57,28 @@ HtmlMapView.prototype.init = function() {
  */
 HtmlMapView.prototype.setFocusFrame = function(frame) {
 	if (this.focusFrame && "commandHandler" in this.focusFrame) {
-		$(window).unbind("keydown", this.focusFrame.commandHandler);
+		$(window).unbind("keydown");
 	}
 
 	if ("commandHandler" in frame) {
-		$(window).bind("keydown", frame.commandHandler);
+		$(window).bind("keydown", bind(frame, frame.commandHandler));
 	}
 	
 	this.focusFrame = frame;
 };
 
 HtmlMapView.prototype.initFrames = function() {
-	//compose the game frame atop the message frame for the default view
-	this.gameFrame = gameFrameBuilder.build(
-		this.controller,
-		this,
-		this.imageTable,
-		this.backgroundImage, 
-		{
-			height: vc.displayHeight - 128,
-			width: vc.displayWidth
-		});
-	
-	this.messageFrame = messageFrameBuilder.build(
-		this.map, 
-		{
-			height: 128,
-			width:	vc.displayWidth
-		});
+	this.gameFrame = new GameFrame(this, this.backgroundImage);
+	this.gameFrame.init({
+		height: vc.displayHeight - 128, 
+		width: vc.displayWidth
+	});
+
+	this.messageFrame = new MessageFrame(this.map);
+	this.messageFrame.init({
+		height: 128,
+		width:	vc.displayWidth
+	});
 	
 	this.mainFrame = this.gameFrame.above(this.messageFrame);
 	this.setFocusFrame(this.gameFrame);
@@ -100,33 +94,37 @@ HtmlMapView.prototype.renderMap = function() {
 	this.mainFrame.draw(ctx);
 };
 
+/**
+ * Pushes an inventory frame onto the stack
+ *
+ * @param container - anything with an {items} collection
+ */
 HtmlMapView.prototype.showInventory = function(container) {
 	// todo: keep a stack of these for e.g. containers within containers
 	this.controller.stop();
-	var frame = inventoryFrameBuilder.build(
-		container, 
-		this, 
-		{
-			height: vc.displayHeight - 128,
-			width: vc.displayWidth
-		});
+	var frame = new InventoryFrame(this, container);
+	frame.init({
+		height: vc.displayHeight - 128,
+		width: vc.displayWidth
+	});
 	
 	this.inventoryFrames.push(frame);
 
-	this.mainFrame = frame.above(msgFrame);
+	this.mainFrame = frame.above(this.messageFrame);
 	this.setFocusFrame(frame);
 };
 
 /**
- * restore either the last inventory frame or the main game frame
+ * Restore either the last inventory frame or the main game frame
  */
 HtmlMapView.prototype.closeInventory = function() {
-	
-	var frame = this.inventoryFrames.pop() || this.mainFrame;
-	this.mainFrame = frame.above(this.msgFrame);
+	this.inventoryFrames.pop();
+	var frameCount = this.inventoryFrames.length;
+	var frame = frameCount > 0 ? this.inventoryFrames[frameCount - 1] : this.gameFrame;
+	this.mainFrame = frame.above(this.messageFrame);
 	this.setFocusFrame(frame);
 
-	if (frame == this.mainFrame) 
+	if (frame == this.gameFrame) 
 		this.controller.start();
 };
 
