@@ -4,130 +4,132 @@
  * @param {Map} map - the map for the view
  * @param {Controller} controller - the main controller
  */
-function HtmlMapView(controller) {	
-	var self = this;
-
-	var imageTable = null;
-	var backgroundImage = null;
-	var mainFrame, gameFrame, messageFrame = null;
+function HtmlMapView(controller) {
+	this.imageTable = null;
+	this.backgroundImage = null;
+	this.mainFrame = null
+	this.gameFrame = null;
+	this.messageFrame = null;
 	
 	// the currently focused frame
-	var focusFrame = null;
+	this.focusFrame = null;
 
-	var map = controller.map;
-	var display = null;
+	this.map = controller.map;
+	this.display = null;
 
 	this.inventoryFrames = [];
-	
-	this.init = function() {
-		//create the main canvas and a hidden canvas for pre-rendering the background.
-		var canvas = $("<canvas width='" + vc.displayWidth + "px' height='" + 
-					   vc.displayHeight + "px'>Incompatible browser</canvas>");	
-		display = canvas[0].getContext('2d');
-		
-		backgroundImage = $("<canvas style='display: none;' width='" + 
-							map.width * vc.tileWidth + "' height='" + 
-							map.height * vc.tileHeight + "'></canvas>")[0];
-		
-		$("#game_view").append(canvas).append(backgroundImage);
-		controller.addEventHandler("tick", self.renderMap);
-		
-		imageTable = new ImageTable();
-		self.initFrames();
-		
-		//preload images - we don't have any way to properly wait, have to 
-		//go through a chain of events to eventually get to the main loop
-		display.fillStyle = "rgb(0,0,0)";
-		display.fillText("Loading images...", 200, 144);
-		
-		(new EventChain())
-			.add(imageTable.init, imageTable, "ready")
-			.add(self.gameFrame.prerenderBackground, self.gameFrame, 
-				 "prerenderComplete")
-			.execute(controller.start);		
-	};	
-		
-	/**
-	 * Sets the focus to the specified frame.  If the focused frame provides a
-	 * "commandHandler" method, this will be passed a jQuery Event object in response
-	 * to the keydown window event.
-	 */
-	this.setFocusFrame = function(frame) {
-		if (self.focusFrame && "commandHandler" in self.focusFrame) {
-			$(window).unbind("keydown", self.focusFrame.commandHandler);
-		}
+	this.controller = controller;
+}
 
-		if ("commandHandler" in frame) {
-			$(window).bind("keydown", frame.commandHandler);
-		}
-		
-		self.focusFrame = frame;
-	};
+HtmlMapView.prototype.init = function() {
+	//create the main canvas and a hidden canvas for pre-rendering the background.
+	var canvas = $("<canvas width='" + vc.displayWidth + "px' height='" + 
+				   vc.displayHeight + "px'>Incompatible browser</canvas>");	
+	this.display = canvas[0].getContext('2d');
+	var map = this.map;
 	
-	this.initFrames = function() {
-		//compose the game frame atop the message frame for the default view
-		var gameFrame = self.gameFrame = gameFrameBuilder.build(
-			controller,
-			self,
-			imageTable,
-			backgroundImage, 
-			{
-				height: vc.displayHeight - 128,
-				width: vc.displayWidth
-			});
-		
-		var msgFrame = self.messageFrame = messageFrameBuilder.build(
-			map, 
-			{
-				height: 128,
-				width:	vc.displayWidth
-			});
-		
-		self.mainFrame = gameFrame.above(msgFrame);
-		self.setFocusFrame(gameFrame);
+	this.backgroundImage = $("<canvas style='display: none;' width='" + 
+							 map.width * vc.tileWidth + "' height='" + 
+							 map.height * vc.tileHeight + "'></canvas>")[0];
+	
+	$("#game_view").append(canvas).append(this.backgroundImage);
+	this.controller.addEventHandler("tick", bind(this, this.renderMap));
+	
+	this.imageTable = new ImageTable();
+	this.initFrames();
+	
+	//preload images - we don't have any way to properly wait, have to 
+	//go through a chain of events to eventually get to the main loop
+	this.display.fillStyle = "rgb(0,0,0)";
+	this.display.fillText("Loading images...", 200, 144);
+	
+	(new EventChain())
+		.add(this.imageTable.init, this.imageTable, "ready")
+		.add(this.gameFrame.prerenderBackground, this.gameFrame, 
+			 "prerenderComplete")
+		.execute(this.controller.start);		
+};	
+
+/**
+ * Sets the focus to the specified frame.  If the focused frame provides a
+ * "commandHandler" method, this will be passed a jQuery Event object in response
+ * to the keydown window event.
+ */
+HtmlMapView.prototype.setFocusFrame = function(frame) {
+	if (this.focusFrame && "commandHandler" in this.focusFrame) {
+		$(window).unbind("keydown", this.focusFrame.commandHandler);
+	}
+
+	if ("commandHandler" in frame) {
+		$(window).bind("keydown", frame.commandHandler);
 	}
 	
-	this.renderMap = function() {	 
-		//wipe the canvas
-		var ctx = display;
-		ctx.fillStyle = "rgb(0,0,0)";
-		ctx.fillRect(0,0,vc.displayWidth,vc.displayHeight);
-		
-		//render the current scene
-		self.mainFrame.draw(ctx);
-	};
+	this.focusFrame = frame;
+};
 
-	this.showInventory = function(container) {
-		// todo: keep a stack of these for e.g. containers within containers
-		controller.stop();
-		var frame = inventoryFrameBuilder.build(
-			container, 
-			this, 
-			{
-				height: vc.displayHeight - 128,
-				width: vc.displayWidth
-			});
-		
-		this.inventoryFrames.push(frame);
-
-		self.mainFrame = frame.above(msgFrame);
-		self.setFocusFrame(frame);
-	};
-
-	/**
-	 * restore either the last inventory frame or the main game frame
-	 */
-	this.closeInventory = function() {
-		
-		var frame = this.inventoryFrames.pop() || this.mainFrame;
-		this.mainFrame = frame.above(this.msgFrame);
-		this.setFocusFrame(frame);
-
-		if (frame == this.mainFrame) 
-			controller.start();
-	};
+HtmlMapView.prototype.initFrames = function() {
+	//compose the game frame atop the message frame for the default view
+	this.gameFrame = gameFrameBuilder.build(
+		this.controller,
+		this,
+		this.imageTable,
+		this.backgroundImage, 
+		{
+			height: vc.displayHeight - 128,
+			width: vc.displayWidth
+		});
 	
-	this.showAnimations = function () {
-		
-	};
+	this.messageFrame = messageFrameBuilder.build(
+		this.map, 
+		{
+			height: 128,
+			width:	vc.displayWidth
+		});
+	
+	this.mainFrame = this.gameFrame.above(this.messageFrame);
+	this.setFocusFrame(this.gameFrame);
 }
+
+HtmlMapView.prototype.renderMap = function() {	 
+	//wipe the canvas
+	var ctx = this.display;
+	ctx.fillStyle = "rgb(0,0,0)";
+	ctx.fillRect(0,0,vc.displayWidth,vc.displayHeight);
+	
+	//render the current scene
+	this.mainFrame.draw(ctx);
+};
+
+HtmlMapView.prototype.showInventory = function(container) {
+	// todo: keep a stack of these for e.g. containers within containers
+	this.controller.stop();
+	var frame = inventoryFrameBuilder.build(
+		container, 
+		this, 
+		{
+			height: vc.displayHeight - 128,
+			width: vc.displayWidth
+		});
+	
+	this.inventoryFrames.push(frame);
+
+	this.mainFrame = frame.above(msgFrame);
+	this.setFocusFrame(frame);
+};
+
+/**
+ * restore either the last inventory frame or the main game frame
+ */
+HtmlMapView.prototype.closeInventory = function() {
+	
+	var frame = this.inventoryFrames.pop() || this.mainFrame;
+	this.mainFrame = frame.above(this.msgFrame);
+	this.setFocusFrame(frame);
+
+	if (frame == this.mainFrame) 
+		this.controller.start();
+};
+
+HtmlMapView.prototype.showAnimations = function () {
+	
+};

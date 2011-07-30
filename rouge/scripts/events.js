@@ -6,7 +6,7 @@ if (!Object.prototype.addEventHandler) {
 		if (typeof(fn) === "undefined") return;
 		var propName = "__event_" + evtName;
 		if (!(propName in this)) this[propName] = [];
-		this[propName].push(bind(this, fn));
+		this[propName].push(fn);
 	}
 }
 
