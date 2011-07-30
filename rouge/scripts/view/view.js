@@ -32,7 +32,7 @@ function HtmlMapView(controller) {
 		$("#game_view").append(canvas).append(backgroundImage);
 		controller.addEventHandler("tick", self.renderMap);
 		
-		this.imageTable = new ImageTable();
+		imageTable = new ImageTable();
 		self.initFrames();
 		
 		//preload images - we don't have any way to properly wait, have to 

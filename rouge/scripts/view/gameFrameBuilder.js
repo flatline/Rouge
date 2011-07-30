@@ -138,7 +138,7 @@ var gameFrameBuilder = new function GameFrameBuilder() {
 			case 73:
 				// i - inventory
 				controller.stop();
-				view.showInventory();
+				view.showInventory(player);
 				// inventoryFrame responsible for returning focus
 			case 83: 
 				// s - save game
