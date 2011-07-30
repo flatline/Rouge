@@ -112,7 +112,7 @@ Map.prototype.yank = function(obj) {
 		}
 	}
 	delete obj.loc;
-	return this;
+	return obj;
 };
 
 /**
@@ -132,7 +132,8 @@ Map.prototype.move = function(obj, row, col, idx) {
 			acc && true; 
 	}, true);
 	if (canPass) {
-		return this.yank(obj).poke(obj, row, col, idx);
+		this.yank(obj);
+		return this.poke(obj, row, col, idx);
 	} else {
 		return this;
 	}

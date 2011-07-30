@@ -64,7 +64,9 @@ function Character() {
 	this.dmgResist = 1;	
 
 	this.weapon = null;
-	this.inventory = [];
+
+	// character inventory
+	this.items = [];
 }
 
 Character.prototype = new Actor();
@@ -118,7 +120,7 @@ Character.prototype.pickup = function(map) {
 	for (var i = this.loc.length - 1; i > 0; i--) {
 		var item = this.loc[i];
 		if ("itemType" in item) {
-			this.inventory.push(map.yank(item));
+			this.items.push(map.yank(item));
 			map.addMessage(this.name + " picked up " + item.descr);
 			return item;
 		}
