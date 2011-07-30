@@ -16,7 +16,11 @@
 	<script type="text/javascript" src="scripts/gamestorage.js"></script>
 	<script type="text/javascript" src="scripts/fov.js"></script>	
 	<script type="text/javascript" src="scripts/imageTable.js"></script>
-	<script type="text/javascript" src="scripts/view.js"></script>
+	<script type="text/javascript" src="scripts/view/viewConstants.js"></script>
+	<script type="text/javascript" src="scripts/view/gameFrameBuilder.js"></script>
+	<script type="text/javascript" src="scripts/view/messageFrameBuilder.js"></script
+	<script type="text/javascript" src="scripts/view/inventoryFrameBuilder.js"></script>
+	<script type="text/javascript" src="scripts/view/view.js"></script>
 	<script type="text/javascript" src="scripts/pickler.js"></script>
 	<script type="text/javascript" src="scripts/items.js"></script>
 	<script type="text/javascript" src="scripts/features.js"></script>
@@ -140,6 +144,10 @@
 	    overflow: scroll-y;
 	    min-width: 100px;
 	  }
+
+	  ul {
+	    list-style: none;
+	  }
 	</style>
   </head>
   <body>
@@ -156,9 +164,9 @@
 		  <div id="stats" class="panel">			
 			Player Stats
 		  </div>
-		  <div id="inventory" class="panel">
+		  <ul id="inventory" class="panel">
 			Inventory
-		  </div>
+		  </ul>
 		</div>
 		<div id="game_view" class="panel column"></div>
 		<div id="messages" class="panel column">

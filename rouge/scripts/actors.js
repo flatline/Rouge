@@ -120,7 +120,7 @@ Character.prototype.pickup = function(map) {
 		if ("itemType" in item) {
 			this.inventory.push(map.yank(item));
 			map.addMessage(this.name + " picked up " + item.descr);
-			break;
+			return item;
 		}
 	}
 };

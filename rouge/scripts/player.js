@@ -76,7 +76,6 @@ Player.prototype.clearActions = function() {
 	this.queuedAction = null;
 };
 
-
 //TODO:	 cached commands are often stale, e.g. a stale attack command that should have been converted to a move
 //should use builder pattern and delay to store the command code and generate the command when it's used.
 function makePlayerMoveCommand (dir) {	
