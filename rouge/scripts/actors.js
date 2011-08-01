@@ -66,7 +66,7 @@ function Character() {
 	this.weapon = null;
 
 	// character inventory
-	this.items = [];
+	this.items = new Container();
 }
 
 Character.prototype = new Actor();
@@ -118,11 +118,25 @@ Character.prototype.die = function(map) {
  */
 Character.prototype.pickup = function(map) {
 	for (var i = this.loc.length - 1; i > 0; i--) {
-		var item = this.loc[i];
-		if ("itemCategory" in item) {
-			this.items.push(map.yank(item));
-			map.addMessage(this.name + " picked up " + item.descr);
-			return item;
-		}
+	 	var item = this.loc[i];
+	 	if ("itemCategory" in item) {
+			this.items.addItem(map.yank(item));
+	 		map.addMessage(this.name + " picked up " + item.descr);
+	 		return item;
+	 	}
+	}
+};
+
+/**
+ * Drops the item at items[itemIdx] onto the character's location on the map
+ * @param container - the container to drop from; if not specified, assumes {this}.
+ */
+Character.prototype.drop = function(container, itemIdx, map) {
+	var items = container ? container : this.items;
+	var loc = this.loc;
+	if (items.length > 0 && itemIdx < items.length) {
+		var item = items.removeItem(itemIdx);
+		map.poke(item, loc.row, loc.col);
+		map.addMessage(this.name + " dropped " + item.descr);
 	}
 };

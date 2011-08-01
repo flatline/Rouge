@@ -39,7 +39,10 @@ Pickler.prototype._isScalar = function(x) {
 
 Pickler.prototype._buildWrapper = function(obj) {
 	var typeName;
-	if (obj instanceof Array) {
+
+	// e.g. Container is an array but is not of this type.  Otherwise however
+	// we need to distinguish between arrays and regular objects.
+	if (obj instanceof Array && !("typeName" in obj)) {
 		typeName = "array";
 	}
 	else {

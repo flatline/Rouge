@@ -5,6 +5,17 @@ function bind(object, fn) {
 	}
 }
 
+/**
+ * copies the properties from source to target
+ */
+if (!Object.prototype.merge) {
+	Object.prototype.merge = function(source) {
+		for (var i in source) {
+			this[i] = source[i];
+		}
+	}
+}
+
 //From MDC
 if (!Array.prototype.filter)
 {

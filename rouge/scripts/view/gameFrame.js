@@ -149,7 +149,7 @@ GameFrame.prototype.commandHandler = function (evt) {
 	case 73:
 		// i - inventory
 		controller.stop();
-		view.showInventory(this.player);
+		view.showInventory(this.player.items);
 		return false;
 		// inventoryFrame responsible for returning focus
 	case 83: 

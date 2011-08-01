@@ -1,12 +1,8 @@
 function Item() {
 	this.typeName = "Item";
 	this.stackable = false;
-}
-
-Item.prototype.copySpec = function(spec) {
-	for (var i in spec) {
-		this[i] = spec[i];
-	}
+	this.qty = 1;
+	this.itemCategory = "Miscellaneous";
 }
 
 function Weapon() {
@@ -23,7 +19,8 @@ var WeaponBuilder = new function weaponBuilder() {
 	this.build = function(key) {
 		var result = new Weapon();
 		result.id = world.getID();
-		result.copySpec(WeaponsTable[key]);
+		result.merge(WeaponsTable[key]);
+		result.stackable = false;
 		return result;
 	};
 }
@@ -33,7 +30,7 @@ var FoodBuilder = new function foodBuilder(key) {
 		var result = new Item();
 		result.itemCategory = "Food";
 		result.id = world.getID();
-		result.copySpec(FoodTable[key]);
+		result.merge(FoodTable[key]);
 		result.stackable = true;
 		return result;
 	}

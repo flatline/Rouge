@@ -1,13 +1,12 @@
 /**
- * Displays the inventory of anything with an "items" property that contains a list of
- * Items.  For example, a character, or a container like a backpack or bag.
+ * Displays the inventory of a Container.  For example, a character, or a backpack.
  */
 function InventoryFrame(view, container) {
 	this.container = container;
-	this.items = container.items;
 	this.imageSize = 32;
 	this.selectedIndex = 0;
 	this.view = view;
+	this.qtyWidth = 25;
 }
 InventoryFrame.prototype = new Frame();
 
@@ -15,31 +14,38 @@ InventoryFrame.prototype.draw = function(ctx) {
 	var margin = 3;
 	this.fill(ctx, "#000");
 	ctx.strokeStyle = "#fff";
-	for (var i = 0; i < this.items.length; i++) {
+
+	for (var i = 0; i < this.container.length; i++) {
 		var xOffset = margin;
 		var yOffset = i * (this.imageSize + margin);
-		var item = this.items[i];
-		ctx.drawImage(this.view.imageTable[item.repr], xOffset, yOffset);
-		ctx.fillStyle = "#fff";
-		ctx.fillText(
-			item.descr, 
-			xOffset + this.imageSize, 
-			yOffset + this.imageSize / 2, 
-			this.width - xOffset - this.imageSize);
+		var width = this.width;
+		var item = this.container[i];
+
+		// highlight selected
 		if (i == this.selectedIndex) {
 			ctx.strokeRect(1, yOffset , this.width - 2, this.imageSize);
 		}
+
+		// image
+		ctx.drawImage(this.view.imageTable[item.repr], xOffset, yOffset);
+
+		// qty
+		xOffset += this.imageSize + margin;
+		yOffset += this.imageSize / 2;
+		width -= xOffset + this.imageSize;
+		ctx.fillStyle = "#fff";
+		ctx.fillText(item.qty.toString(), xOffset, yOffset, width);
+
+		// descr
+		xOffset += this.qtyWidth;
+		width -= this.qtyWidth;
+		ctx.fillText(item.descr, xOffset, yOffset, width);
 	}
 };
 
 InventoryFrame.prototype.commandHandler = function(evt) {
 	var stopEvent = false;
-
-	// local references for convenience
-	var loc = this.view.map.player.loc;
-	var items = this.items;
-	var idx = this.selectedIndex;
-	var item = items[idx];
+	var container = this.container;
 
 	switch(evt.keyCode) {
 	case 27:
@@ -56,18 +62,16 @@ InventoryFrame.prototype.commandHandler = function(evt) {
 	case 40:
 	case 98:
 		// down-arrow
-		if (this.selectedIndex < this.container.items.length - 1) 
+		if (this.selectedIndex < container.length - 1) 
 			this.selectedIndex += 1;
 		stopEvent = true;
 		break;
 	case 68:
 		// d = drop
-		if (items.length > 0) {
-			this.view.map.poke(item, loc.row, loc.col);
-			items.splice(this.selectedIndex, 1);
-			if (idx > items.length - 1)
-				this.selectedIndex = items.length - 1;
-			this.view.map.addMessage("You dropped " + item.descr);
+		if (container.length > 0) {
+			this.view.map.player.drop(container, this.selectedIndex, this.view.map);
+			if (this.selectedIndex > container.length - 1)
+				this.selectedIndex = container.length - 1;
 		}
 		stopEvent = true;
 	}
