@@ -1,5 +1,6 @@
 function Item() {
 	this.typeName = "Item";
+	this.stackable = false;
 }
 
 Item.prototype.copySpec = function(spec) {
@@ -10,7 +11,7 @@ Item.prototype.copySpec = function(spec) {
 
 function Weapon() {
 	this.typeName = "Weapon";
-	this.itemType = "weapon";
+	this.itemCategory = "Weapons";
 }
 Weapon.prototype = new Item();
 
@@ -30,14 +31,16 @@ var WeaponBuilder = new function weaponBuilder() {
 var FoodBuilder = new function foodBuilder(key) {
 	this.build = function(key) {
 		var result = new Item();
-		result.itemType = "food";
+		result.itemCategory = "Food";
 		result.id = world.getID();
 		result.copySpec(FoodTable[key]);
+		result.stackable = true;
 		return result;
 	}
 }
 
 var FoodTable = {
+	// all are set to be stackable in foodbuilder
 	"shroom_orange" : {
 		"descr" : "an orange shroom",
 		"repr" : "food:2,0",
