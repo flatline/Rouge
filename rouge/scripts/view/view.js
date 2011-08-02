@@ -128,6 +128,20 @@ HtmlMapView.prototype.closeInventory = function() {
 		this.controller.start();
 };
 
-HtmlMapView.prototype.showAnimations = function () {
-	
+/**
+ * Shows the targeting interface overlaying the gameframe
+ * @param callback - function that accepts the payload parameter, a loc on the map,
+ */
+HtmlMapView.prototype.showTargeting = function(callback) {
+	this.controller.stop();
+	// leave height and width to 0, will draw over the game frame...
+	var targetFrame = new TargetFrame(this, callback, this.map);
+	this.mainFrame = this.mainFrame.above(targetFrame);
+	this.setFocusFrame(targetFrame);
+};
+
+HtmlMapView.prototype.closeTargeting = function() {
+	this.mainFrame = this.gameFrame.above(this.messageFrame);
+	this.setFocusFrame(this.gameFrame);
+	this.controller.start();
 };

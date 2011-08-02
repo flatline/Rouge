@@ -78,5 +78,5 @@ InventoryFrame.prototype.commandHandler = function(evt) {
 
 	// re-render when anything changes, e.g. an item is dropped.
 	this.view.renderMap();
-	return stopEvent;
+	return !stopEvent;
 };

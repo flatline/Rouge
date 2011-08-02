@@ -125,6 +125,10 @@ GameFrame.prototype._showFPS = function(ctx) {
 	this.lastFrameDrawn = (new Date()).getTime();		
 };
 
+GameFrame.prototype._lookAtTarget = function(loc) {
+	this.map.addMessage("you see some stuff");
+}
+
 GameFrame.prototype.commandHandler = function (evt) {
 	// if the game is paused, don't accept anything other than the unpause command
 	var controller = this.controller;
@@ -156,6 +160,11 @@ GameFrame.prototype.commandHandler = function (evt) {
 		// s - save game
 		controller.saveGame();
 		alert("Game " + controller.gameId + " saved.");
+		return false;
+	case 76:
+		// l - look
+		view.showTargeting(bind(this, this._lookAtTarget));
+		// todo: print loc;
 		return false;
 	default:
 		// an actual action to be taken, not specific to the view

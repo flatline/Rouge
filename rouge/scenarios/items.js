@@ -6,7 +6,7 @@ function newMap() {
 	// tile the ground
 	for (var i = 0; i < 30; i++) {
 		for (var j = 0; j < 30; j++) {
-			map.poke({ repr: "grounds:0,4", "static" : true },  i, j);
+			map.poke({ repr: "grounds:0,4", static : true, descr: "floor" },  i, j);
 		}
 	}
 
