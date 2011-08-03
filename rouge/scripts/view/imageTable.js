@@ -1,8 +1,6 @@
 /**
- * Loads and prepares the images specified in sourceList.  This is currently:
- *  a) a hard-coded list of images, all presumed to have a .png file extension, and
- *  b) limited to 32x32 tiles, though this constant should be factored out as a 
- *     variable.
+ * Loads and prepares the images specified in sourceList.  This is currently a hard-coded list of 
+ * images, all presumed to have a .png file extension.
  *
  * Usage: 
  *  - call init() on the instance of the ImageTable, and respond to the "ready" event.
@@ -47,17 +45,18 @@ function ImageTable() {
 		
 		for (var i = 0; i < self.imgList.length; i++) {
 			var image = self.imgList[i];
-			for (var row = 0; row < image.height; row += 32) {
-				for (var col = 0; col < image.width; col += 32) {
+			for (var row = 0; row < image.height; row += vc.tileHeight) {
+				for (var col = 0; col < image.width; col += vc.tileWidth) {
 					// todo - can we keep each canvas by itself in the list, or do we need to 
 					// copy to an image via the src?  Is the extra image data actually truncated?
 					var canvas = document.createElement("canvas");
-					canvas.height = 32;
-					canvas.width = 32;
+					canvas.height = vc.tileHeight;
+					canvas.width = vc.tileWidth;
 					var ctx = canvas.getContext("2d");
 					
 					//var sprite = new Image();
-					var key = self.sourceList[i] + ":" + (row/32).toString() + "," + (col/32).toString();
+					var key = self.sourceList[i] + ":" + (row/vc.tileHeight).toString() + "," + 
+						(col/vc.tileWidth).toString();
 					ctx.drawImage(image, - col, - row);
 					//sprite.src = canvas.toDataUrl("image/png");
 					self[key] = canvas; // sprite;

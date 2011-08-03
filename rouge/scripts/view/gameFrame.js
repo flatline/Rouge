@@ -7,6 +7,7 @@ function GameFrame(view, backgroundImage) {
 	this.player = this.map.player;
 	this.imageTable = view.imageTable;
 	this.backgroundImage = backgroundImage;
+	this.fov = null;
 }
 
 GameFrame.prototype = new Frame();
@@ -36,8 +37,8 @@ GameFrame.prototype.prerenderBackground = function() {
 };
 
 GameFrame.prototype.draw = function(ctx) {
-	var xOffset = this._playerXOffset();
-	var yOffset = this._playerYOffset();
+	var xOffset = this.playerXOffset();
+	var yOffset = this.playerYOffset();
 
 	ctx.drawImage(this.backgroundImage, xOffset, yOffset);
 
@@ -46,10 +47,10 @@ GameFrame.prototype.draw = function(ctx) {
 	// hack - draw over the already-rendered squares with solid black.  Consider only 
 	// rendering landscape features, perhaps those already discovered, with partial alpha
 	// transparency.
-	var fov = new FieldOfView(map, 
-							  this.height / vc.tileHeight,
-							  this.width / vc.tileWidth);
-
+	this.fov = new FieldOfView(map, 
+							   this.height / vc.tileHeight,
+							   this.width / vc.tileWidth);
+	var fov = this.fov;
 	var hidden_tiles = fov.get_hidden_tiles(this.player.loc);
 
 	// draw sprite for each indexed entity
@@ -77,12 +78,18 @@ GameFrame.prototype.draw = function(ctx) {
 	this._showFPS(ctx);
 };
 
-GameFrame.prototype._playerXOffset = function() {
+/**
+ * Calculates the player's X Offset from left edge of map in pixels
+ */
+GameFrame.prototype.playerXOffset = function() {
 	return this.left - (this.player.loc.col * vc.tileWidth) + 
 		(this.width / 2) - vc.tileWidth/2;
 };
 
-GameFrame.prototype._playerYOffset = function() {
+/**
+ * Calculates the player's Y Offset from left edge of map in pixels
+ */
+GameFrame.prototype.playerYOffset = function() {
 	return this.top - (this.player.loc.row * vc.tileHeight) + 
 		(this.height / 2) - vc.tileHeight/2;
 };
@@ -101,8 +108,8 @@ GameFrame.prototype._drawSprite = function(sprite, ctx) {
 
 GameFrame.prototype._drawRelativeToPlayer = function(sprite, ctx) {
 	var loc = sprite.loc;
-	var drawX = loc.col * vc.tileWidth + this._playerXOffset();
-	var drawY = loc.row * vc.tileHeight + this._playerYOffset();
+	var drawX = loc.col * vc.tileWidth + this.playerXOffset();
+	var drawY = loc.row * vc.tileHeight + this.playerYOffset();
 	var imageTable = this.imageTable;
 	if (sprite.repr in imageTable) {
 		var img = imageTable[sprite.repr];
@@ -125,8 +132,46 @@ GameFrame.prototype._showFPS = function(ctx) {
 	this.lastFrameDrawn = (new Date()).getTime();		
 };
 
+/**
+ * Callback procedure for look command
+ */
 GameFrame.prototype._lookAtTarget = function(loc) {
-	this.map.addMessage("you see some stuff");
+	if (this.fov.is_tile_hidden(loc)) {
+		this.map.addMessage("You see only darkness");
+		return;
+	}
+
+	var message = "You see: ";
+	var anythingThere = false;
+	for (var i = 0; i < loc.length; i++) {
+		var thing = loc[i];
+		if ("hidden" in thing && thing.hidden) {
+			continue;
+		}
+		else if ("descr" in thing) {
+			anythingThere = true;
+			message += thing.descr;
+			if ("qty" in thing && thing.qty > 1)
+				message += "(" + thing.qty + ")";
+		}
+		else if ("name" in thing) {
+			anythingThere = true;
+			message += thing.name;
+		}
+		else {
+			continue;
+		}
+
+		if (i < loc.length - 1)
+			message += ", ";
+	}
+
+	if (anythingThere) {
+		this.map.addMessage(message);
+	} 
+	else {
+		this.map.addMessage("You don't see anything");
+	}
 }
 
 GameFrame.prototype.commandHandler = function (evt) {
