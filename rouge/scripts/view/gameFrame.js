@@ -67,6 +67,9 @@ GameFrame.prototype.draw = function(ctx) {
 		}
 	}
 
+	// hack: ensure player is (re)drawn over underlying items
+	this._drawRelativeToPlayer(this.player, ctx);
+
 	for (var i = 0; i < hidden_tiles.length; i++) {
 		var loc = hidden_tiles[i];
 		var drawX = loc.col * vc.tileWidth + xOffset;

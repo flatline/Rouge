@@ -1,3 +1,5 @@
+/* Garbage code, just used to bootstrap a level with some interesting stuff on it */
+
 function WallBot(map) {
 	// procedural wall drawing algorithm
 	var self = this;
@@ -138,14 +140,48 @@ function newMap() {
 		wallBot.move(1);
 	}
 
-	
 	return map;
+}
+
+function addItems(map) {
+	var shrooms = ["shroom_red", "shroom_blue", "shroom_orange", "shroom_brown", "shroom_green"];
+
+	for (var i = 0; i < 5; i++) {
+		map.poke(FoodBuilder.build(shrooms[Math.floor(Math.random() * shrooms.length)]), 
+				 Math.floor(Math.random() * 8 + 11), 
+				 Math.floor(Math.random() * 8 + 11));
+	}
+
+	for (var weapon in WeaponsTable) {
+		if (!WeaponsTable.hasOwnProperty(weapon)) 
+			continue;
+		map.poke(WeaponBuilder.build(weapon), 
+				 Math.floor(Math.random() * 8 + 11), 
+				 Math.floor(Math.random() * 8 + 11));
+	}
+
+	for (var armor in ArmorTable) {
+		if (!ArmorTable.hasOwnProperty(armor)) 
+			continue;
+		map.poke(ArmorBuilder.build(armor), 
+				 Math.floor(Math.random() * 8 + 11), 
+				 Math.floor(Math.random() * 8 + 11));
+	}
 }
 
 function newGameController() {
 	var map = newMap();
+	addItems(map);
 	
 	var controller = new Controller(map);
+
+	for (var i = 0; i < 3; i++) {
+		var orc = new NPC();
+		orc.repr = "monster1:3,1";
+		orc.id = world.getID();									   
+		map.poke(orc, 0, i);
+		controller.schedule(orc, 1000);
+	}
 	
 	return controller;
 }

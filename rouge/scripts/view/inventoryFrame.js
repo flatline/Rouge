@@ -6,6 +6,7 @@ function InventoryFrame(view, container) {
 	this.imageSize = 32;
 	this.selectedIndex = 0;
 	this.view = view;
+	this.player = view.map.player;
 	this.qtyWidth = 25;
 }
 InventoryFrame.prototype = new Frame();
@@ -37,15 +38,31 @@ InventoryFrame.prototype.draw = function(ctx) {
 		ctx.fillText(item.qty.toString(), xOffset, yOffset, width);
 
 		// descr
+		var descr = item.descr;
 		xOffset += this.qtyWidth;
 		width -= this.qtyWidth;
-		ctx.fillText(item.descr, xOffset, yOffset, width);
+		// show if wielded or worn
+		if (item instanceof Armor && this.player.armorSlots[item.slot] == item) {
+			descr += " (being worn)";
+		}
+		else if (item instanceof Weapon) {
+			if (this.player.weaponSlots["right_hand"] == item) {
+				descr += " (wielded in right hand)";
+			}
+			else if (this.player.weaponSlots["left_hand"] == item) {
+				descr += " (wielded in left hand)";
+			}
+		}
+
+		ctx.fillText(descr, xOffset, yOffset, width);
 	}
 };
 
 InventoryFrame.prototype.commandHandler = function(evt) {
 	var stopEvent = false;
 	var container = this.container;
+	var item = this.container[this.selectedIndex];
+	var player = this.player;
 
 	switch(evt.keyCode) {
 	case 27:
@@ -74,6 +91,22 @@ InventoryFrame.prototype.commandHandler = function(evt) {
 				this.selectedIndex = container.length - 1;
 		}
 		stopEvent = true;
+	case 87:
+		// w = wield or wear
+		if (item instanceof Armor) {
+			player.wearArmor(item);
+			this.view.map.addMessage("You put on " + item.descr);
+		}
+		else if (item instanceof Weapon) {
+			try {
+				player.wieldWeapon(item);
+				this.view.map.addMessage("You wield " + item.descr);
+			}
+			catch (e) {
+				this.view.map.addMessage(e);
+			}
+		}
+		//todo: remove
 	}
 
 	// re-render when anything changes, e.g. an item is dropped.

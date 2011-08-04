@@ -14,6 +14,7 @@ function ImageTable() {
 
 	//wait to preload all images, then populate this as a hashtable	
 	self.sourceList = [
+		"armor",
 		"classm",
 		"dungeon",
 		"edging1",

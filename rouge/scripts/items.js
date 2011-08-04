@@ -5,15 +5,30 @@ function Item() {
 	this.itemCategory = "Miscellaneous";
 }
 
+/**
+ * Use the weaponBuilder object to construct
+ */
 function Weapon() {
 	this.typeName = "Weapon";
 	this.itemCategory = "Weapons";
+	this.two_handed = false;
 }
 Weapon.prototype = new Item();
 
+// todo: probably move to character prototype
 Weapon.prototype.dmg = function() {
 	return Math.round(Math.random() * this.spec.dmg + 1);
 };
+
+/**
+ * Use the armorBuilder prototype to construct
+ */
+function Armor() {
+	this.typeName = "Armor";
+	this.itemCategory = "Armor";
+	this.slot = "unknown";
+}
+Armor.prototype = new Item();
 
 var WeaponBuilder = new function weaponBuilder() {
 	this.build = function(key) {
@@ -23,6 +38,16 @@ var WeaponBuilder = new function weaponBuilder() {
 		result.stackable = false;
 		return result;
 	};
+}
+
+var ArmorBuilder = new function armorBuilder(key) {
+	this.build = function(key) {
+		var result = new Armor();
+		result.id = world.getID();
+		result.merge(ArmorTable[key]);
+		result.stackable = false;
+		return result;
+	}
 }
 
 var FoodBuilder = new function foodBuilder(key) {
@@ -94,5 +119,26 @@ var WeaponsTable = {
 		"dmg" : 12,
 		"weight" : 6,
 		"two_handed" : true
+	}
+};
+
+var ArmorTable = {
+	"leather_helm" : {
+		descr: "a leather helm",
+		repr: "armor:1,0",
+		slot: "head",
+		weight: 1
+	},
+	"leather_armor" : {
+		descr: "a set of leather armor",
+		repr: "armor:4,0",
+		slot: "armor",
+		weight: 15
+	},
+	"leather_boots" : {
+		descr: "a pair of leather boots",
+		repr: "armor:2,1",
+		slot: "feet",
+		weight: 2
 	}
 };
