@@ -53,7 +53,6 @@ function BodyPart(descr, size, type, children) {
 	this.descr = descr;
 	this.size = size;
 	this.type = type;
-	this.parent = parent;
 	this.condition = 100;
 	this.status = "fine";
 	this.children = children;
@@ -272,9 +271,12 @@ Character.prototype.wieldWeapon = function(weapon) {
 		// assume right-hand dominant
 		if (this.canWieldOneHanded("right hand")) {
 			this.weaponSlots.right_hand = weapon;
+			// hack - to remove two-handed wield, just empty the other slot
+			this.weaponSlots.left_hand = null;
 		}
 		else if (this.canWieldOneHanded("left hand")) {
 			this.weaponSlots.left_hand = weapon;
+			this.weaponSlots.right_hand = null;
 		}
 		else {
 			throw this.name + " has no hands capable of wielding that.";

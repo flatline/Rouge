@@ -47,7 +47,10 @@ InventoryFrame.prototype.draw = function(ctx) {
 		}
 		else if (item instanceof Weapon) {
 			if (this.player.weaponSlots["right_hand"] == item) {
-				descr += " (wielded in right hand)";
+				if (item.two_handed)
+					descr += " (wielded in both hands)";				
+				else 
+					descr += " (wielded in right hand)";
 			}
 			else if (this.player.weaponSlots["left_hand"] == item) {
 				descr += " (wielded in left hand)";
@@ -106,7 +109,7 @@ InventoryFrame.prototype.commandHandler = function(evt) {
 				this.view.map.addMessage(e);
 			}
 		}
-		//todo: remove
+	//todo: remove
 	}
 
 	// re-render when anything changes, e.g. an item is dropped.
