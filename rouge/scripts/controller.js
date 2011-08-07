@@ -3,39 +3,39 @@
  * @constructor
  */
 function PriorityQueue() {
-	var self = this;
 	this.typeName = "PriorityQueue";
 	this._list = [];
-	this.enqueue = function (obj, delay) {
-		var node = {time: delay + (new Date()).getTime(), value : obj };
-		var i = self._list.length - 1;		
-		while (i >= 0 && node.time < self._list[i].time) {
-			i--;				
-		}
-		self._list.splice(i + 1, 0, node);
-	};
-	
-	this.dequeue = function () {
-		return self._list.shift().value;			
-	};
-	
-	this.head = function () {
-		return self._list[0];
-	};
-
-	this.addTime = function(delta) {
-		for(var i = 0; i < self._list.length; i++) {
-			self._list[i].time += delta;
-		}
-	}
 }
+
+PriorityQueue.prototype.enqueue = function (obj, delay) {
+	var node = {time: delay + (new Date()).getTime(), value : obj };
+	var i = this._list.length - 1;		
+	while (i >= 0 && node.time < this._list[i].time) {
+		i--;				
+	}
+	this._list.splice(i + 1, 0, node);
+};
+	
+PriorityQueue.prototype.dequeue = function () {
+	return this._list.shift().value;			
+};
+
+PriorityQueue.prototype.head = function () {
+	return this._list[0];
+};
+
+PriorityQueue.prototype.addTime = function(delta) {
+	for(var i = 0; i < this._list.length; i++) {
+		this._list[i].time += delta;
+	}
+};
+
 
 /**
  * @constructor
  * 
  */
 function Controller(map) {
-	var self = this;
 	this.typeName = "Controller";
 	this._queue = new PriorityQueue();
 	this._handle = null;
@@ -43,65 +43,62 @@ function Controller(map) {
 	this.interval = 0; //delay on timer in ms		
 	this.map = map;
 	
-	var state = "stopped";	
-	
-	/************************************
-	  Scheduler code
-	************************************/
-	this.schedule = function(actor, delay) {
-		self._queue.enqueue(actor, delay);
-	};
-	
-	/**
-	 * @returns state - one of "stopped", "running"
-	 */
-	this.getState = function() {
-		return state;
-	};
-	
-	this.start = function() {
-		if (state != "running") {
-			//update the timestamps to reflect the current clock time
-			self._queue.addTime((new Date).getTime() - self._lastStoppedTime);
-			state = "running";
-			self._tick();
-		}
-	}; 
-	
-	this.stop = function() {
-		state = "stopped";
-		//ensure that the queue state can be restored later to match time change
-		self._lastStoppedTime = (new Date).getTime();
-	};
-	
-	this._tick = function() {
-		var actors = [];
-		var done = false;
-		var d = new Date();
-		var head = self._queue.head();
-		while (head && head.time <= d.getTime()) {			
-			actors.push(self._queue.dequeue());
-			head = self._queue.head(); 
-		}
-		var len = actors.length;
-		for (var i = 0; i < len; i++) {
-			var actor = actors[i];
-			if (actor.active) actor.act(self); //in case of e.g. death
-		}
-		
-		self.raiseEvent("tick");
-		
-		if (state === "running") {			
-			self._handle = setTimeout(self._tick, self.interval);
-		}				
-	};
-	
-	this.saveGame = function() {
-        self.stop();
-        self.map.player.clearActions();
-        if (!self.hasOwnProperty("gameId")) 
-			self.gameId = parseInt(Math.random() * 10000);
-        gameStorage.saveGame(self.gameId, self);        
-        self.start();
-	}
+	this.state = "stopped";	
 }
+
+Controller.prototype.schedule = function(actor, delay) {
+	this._queue.enqueue(actor, delay);
+};
+	
+/**
+ * @returns state - one of "stopped", "running"
+ */
+Controller.prototype.getState = function() {
+	return this.state;
+};
+
+Controller.prototype.start = function() {
+	if (this.state != "running") {
+		//update the timestamps to reflect the current clock time
+		this._queue.addTime((new Date).getTime() - this._lastStoppedTime);
+		this.state = "running";
+		this._tick();
+	}
+}; 
+
+Controller.prototype.stop = function() {
+	this.state = "stopped";
+	//ensure that the queue state can be restored later to match time change
+	this._lastStoppedTime = (new Date).getTime();
+};
+
+Controller.prototype._tick = function() {
+	var actors = [];
+	var done = false;
+	var d = new Date();
+	var head = this._queue.head();
+	while (head && head.time <= d.getTime()) {			
+		actors.push(this._queue.dequeue());
+		head = this._queue.head(); 
+	}
+	var len = actors.length;
+	for (var i = 0; i < len; i++) {
+		var actor = actors[i];
+		if (actor.active) actor.act(this); //in case of e.g. death
+	}
+	
+	this.raiseEvent("tick");
+	
+	if (this.state === "running") {			
+		this._handle = setTimeout(bind(this, this._tick), this.interval);
+	}				
+};
+
+Controller.prototype.saveGame = function() {
+    this.stop();
+    this.map.player.clearActions();
+    if (!this.hasOwnProperty("gameId")) 
+		this.gameId = parseInt(Math.random() * 10000);
+    gameStorage.saveGame(this.gameId, this);        
+    this.start();
+};
