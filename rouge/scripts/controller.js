@@ -75,22 +75,18 @@ function Controller(map) {
 	};
 	
 	this._tick = function() {
-		try {
-			var actors = [];
-			var done = false;
-			var d = new Date();
-			var head = self._queue.head();
-			while (head && head.time <= d.getTime()) {			
-				actors.push(self._queue.dequeue());
-				head = self._queue.head(); 
-			}
-			var len = actors.length;
-			for (var i = 0; i < len; i++) {
-				var actor = actors[i];
-				if (actor.active) actor.act(self); //in case of e.g. death
-			}
-		} catch (e) {
-			debug(e);
+		var actors = [];
+		var done = false;
+		var d = new Date();
+		var head = self._queue.head();
+		while (head && head.time <= d.getTime()) {			
+			actors.push(self._queue.dequeue());
+			head = self._queue.head(); 
+		}
+		var len = actors.length;
+		for (var i = 0; i < len; i++) {
+			var actor = actors[i];
+			if (actor.active) actor.act(self); //in case of e.g. death
 		}
 		
 		self.raiseEvent("tick");
@@ -99,21 +95,6 @@ function Controller(map) {
 			self._handle = setTimeout(self._tick, self.interval);
 		}				
 	};
-	
-	/* Command handling */
-	
-	/**
-	 * Sets the player's action based on an ActionBuilder 
-	 * (from player.js/playerCommands). Was formerly in the view object.
-	 */
-	this.setPlayerCommand = function(actionBuilder) {	   
-		if (typeof(actionBuilder) !== "undefined") {
-			//TODO: aren't some of these parameters now redundant after 
-			//moving the body of this code into player.setAction?
-    		self.map.player.setAction(
-				actionBuilder(self.map, self.map.player), self);
-	    }
-	}
 	
 	this.saveGame = function() {
         self.stop();

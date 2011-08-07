@@ -5,7 +5,7 @@
 function Player() {
 	this.typeName = "Player";
 	this.repr = "people:2,2";
-	this.action = null;
+	this.actionCode = null;
 	this.type = "Player";
 	this.name = "Player";
 	this.id = world.getID();
@@ -16,68 +16,64 @@ function Player() {
 	//cache up to 2 commands, don't accept more until one has executed.
 	this.queuedAction = null;
 	
-	this.locked = false;	
+	this.locked = false;
 }
-
 Player.prototype = new Character();
 
 /**
  * Handles setting the action from the view; will schedule the action 
  * automatically and handle queueing.
+ * @param actionCode - "k" + the event keyCode property
  */
-Player.prototype.setAction = function(action, controller) {
-	try {			
-		var schedule = false;
-		if (typeof(this.action) === "undefined" || this.action === null) {
-			this.action = action;
-			schedule = true;
-		} else if (typeof(this.queuedAction) === "undefined" || 
-				   this.queuedAction === null) 
-		{
-			this.queuedAction = action;
-		} //else ignore
-		
-		//this.act() will continue scheduling until the queued action and
-		//"current" action are complete.						
-		if (schedule) {
-			var delay = this.timeout - (new Date()).getTime();		
-			controller.schedule(this, delay);
-		}
-	} catch (e) {
-		debug("Player.setAction error: " + e);
+Player.prototype.setAction = function(actionCode, controller) {
+	var schedule = false;
+	if (typeof(this.actionCode) === "undefined" || this.actionCode === null) {
+		this.actionCode = actionCode;
+		schedule = true;
+	} else if (typeof(this.queuedAction) === "undefined" || 
+			   this.queuedAction === null) 
+	{
+		this.queuedAction = action;
+	} //else ignore
+	
+	//this.act() will continue scheduling until the queued action and
+	//"current" action are complete.						
+	if (schedule) {
+		var delay = this.timeout - (new Date()).getTime();		
+		controller.schedule(this, delay);
 	}
 };
 
+/**
+ * Creates and executes a new action based on the current actionCode; 
+ * Swaps in queuedAction if applicable.
+ */
 Player.prototype.act = function(controller) {
 	//rely on the view to set the action based on user input
-	if (typeof(this.action) === "undefined" || this.action === null) 
+	if (typeof(this.actionCode) === "undefined" || this.actionCode === null) 
 		return;
 	
-	try {
-		this.action.execute();
-		this.timeout = (new Date()).getTime() + this.action.delay;
-		
-		//handle queued action
-		if (typeof(this.queuedAction) !== "undefined" && 
-			this.queuedAction !== null) 
-		{
-			controller.schedule(this, this.action.delay);
-		}
-		
-		this.action = this.queuedAction;
-		this.queuedAction = null;		
-	} catch (e) {
-		debug("Player.act error: " + e);
+	var action = playerCommands[this.actionCode].call(this, controller.map, this);
+	action.execute();
+	this.timeout = (new Date()).getTime() + action.delay;
+	
+	//handle queued action
+	if (typeof(this.queuedAction) !== "undefined" && 
+		this.queuedAction !== null) 
+	{
+		controller.schedule(this, action.delay);
 	}
+	
+	this.actionCode = this.queuedAction;
+	this.queuedAction = null;		
 };
 
 Player.prototype.clearActions = function() {
-	this.action = null;
+	this.actionCode = null;
 	this.queuedAction = null;
 };
 
-//TODO:	 cached commands are often stale, e.g. a stale attack command that should have been converted to a move
-//should use builder pattern and delay to store the command code and generate the command when it's used.
+// todo: encapsulate the command stuff somewhere...?
 function makePlayerMoveCommand (dir) {	
 	return function(map, actor) {
 		//attack or move to the square?
@@ -114,11 +110,11 @@ function makePlayerMoveCommand (dir) {
 
 function makePlayerPickupCommand() {
 	return function(map, actor) {
-		actor.pickup(map);
+		return new Action(function() { actor.pickup(map); }, 0);
 	};
 }
 
-var playerCommands = {
+playerCommands = {
 	"k37" : makePlayerMoveCommand("w"),
 	"k38" : makePlayerMoveCommand("n"),
 	"k39" : makePlayerMoveCommand("e"),
@@ -133,3 +129,4 @@ var playerCommands = {
 	"k105" : makePlayerMoveCommand("ne"),
 	"k188" : makePlayerPickupCommand()
 };
+

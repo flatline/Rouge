@@ -175,11 +175,13 @@ function newGameController() {
 	
 	var controller = new Controller(map);
 
-	for (var i = 0; i < 3; i++) {
+	for (var i = 0; i < 29; i++) {
 		var orc = new NPC();
 		orc.repr = "monster1:3,1";
 		orc.id = world.getID();									   
 		map.poke(orc, 0, i);
+		orc.items.addItem(WeaponBuilder.build("longsword"));
+		orc.wieldWeapon(orc.items[0]);
 		controller.schedule(orc, 1000);
 	}
 	

@@ -218,7 +218,8 @@ GameFrame.prototype.commandHandler = function (evt) {
 		// an actual action to be taken, not specific to the view
 		var key = "k" + evt.keyCode.toString();
 		if (key in playerCommands) {
-			controller.setPlayerCommand(playerCommands[key]);
+			controller.map.player.setAction(key, controller);
+			//controller.setPlayerCommand(playerCommands[key]);
 			return false;
 		}
 	}

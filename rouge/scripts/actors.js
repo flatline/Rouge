@@ -59,8 +59,8 @@ function BodyPart(descr, size, type, children) {
 }
 
 /**
- * A character can do more than just the basic actor; currently move, attack,
- * and die.
+ * A character can do more than just the basic actor; has a body structure and can wield weapons,
+ * etc.
  */
 function Character() {	
 	this.type = "Character";
