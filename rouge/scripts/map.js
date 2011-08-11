@@ -156,14 +156,13 @@ Map.prototype.addMessage = function(msg) {
  * Calculates the linear distance between two locations on the map
  */
 Map.prototype.distance = function (loc1, loc2) {
-	try {
-		return Math.round(
-			Math.sqrt( 
-				Math.pow(loc1.row - loc2.row, 2) + 
-					Math.pow(loc1.col - loc2.col, 2)));
-	} catch (e) {
-		debug("Map.distance: " + e + ": " + e.stack);
-	}		
+	if (!(loc1 && loc2)) 
+		return 100000;
+
+	return Math.round(
+		Math.sqrt( 
+			Math.pow(loc1.row - loc2.row, 2) + 
+				Math.pow(loc1.col - loc2.col, 2)));
 };
 
 /**

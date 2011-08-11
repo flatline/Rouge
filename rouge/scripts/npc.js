@@ -116,5 +116,5 @@ CombatStrategy.prototype.getNextAction = function(ctrl) {
 	var self = this;
 	return new Action(function() {
 		self.actor.attack(self.target, ctrl.map);
-	}, 500);
+	}, 1000);
 };

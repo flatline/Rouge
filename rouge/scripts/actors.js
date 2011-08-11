@@ -54,7 +54,8 @@ function BodyPart(descr, size, type, children) {
 	this.size = size;
 	this.type = type;
 	this.condition = 100;
-	this.status = "fine";
+	// ok, missing
+	this.status = "ok";
 	this.children = children;
 }
 
@@ -65,15 +66,16 @@ function BodyPart(descr, size, type, children) {
 function Character() {	
 	this.type = "Character";
 	this.name = "Character";	
-	this.hitPoints = Math.random() * 12;
-	this.accuracy = 5;
-	this.dodge = 1;
+	this.hitPoints = 12;
 
 	// default hand-to-hand damage
 	this.dmg = 4;
-	this.dmgResist = 1;	
 
-	this.weapon = null;
+	// character stats
+	this.str = Math.random() * 15 + 4;
+	this.dex = Math.random() * 15 + 4;
+
+	this.meleeLevel = 0;
 
 	// character inventory
 	this.items = new Container();
@@ -135,6 +137,12 @@ function Character() {
 			])
 		])
 	]);
+
+	//access through getFlattenedBody
+	this._flattenedBody = null;
+
+	// access through getBodySize
+	this._bodySize = 0;
 }
 Character.prototype = new Actor();
 
@@ -143,9 +151,9 @@ Character.prototype.countBodyParts = function(root, type, filter) {
 	var count = 0;
 	if (root.type == type) {
 		// assume that there is no child object of same type
-		return filter(root) ? 1 : 0;
+		return (root.status == "ok" && filter(root)) ? 1 : 0;
 	}
-	else if (root.children != null && root.children.count > 0) {
+	else if (root.children != null && root.children.count > 0 && root.status == "ok") {
 		for (var i = 0; i < root.children.length; i++) {
 			count += this.countBodyParts(root.children[i], type, filter);
 		}
@@ -153,39 +161,106 @@ Character.prototype.countBodyParts = function(root, type, filter) {
 	return count;
 };
 
-Character.prototype.attack = function(target, map) {
-	//TODO: follow an attack strategy instead						
-	if (typeof(target) === "undefined" || 
-		typeof(target.loc) === "undefined" || 
-		target.loc === null || 
-		!target.active) 
-	{
-		map.addMessage(this.name + " swings wildly at the air");
-		return;
+/**
+ * Lazy calculation of the _flattenedBody array for easy iteration over body parts
+ */
+Character.prototype.getFlattenedBody = function() {
+	if (!this._flattenedBody) {
+		var result = [];
+		var iterate = function(root) {
+			result.push(root);
+			if (root.children) {
+				for (var i = 0; i < root.children.length; i++) {
+					iterate(root.children[i]);
+				}
+			}
+		}
+
+		iterate(this.body);
+		result.sort(function(a, b) { return b.size - a.size; });
+		this._flattenedBody = result;
+	}
+
+	return this._flattenedBody;
+};
+
+/**
+ * Lazy calculation of the _bodySize property
+ */	
+Character.prototype.getBodySize = function() {
+	if (this._bodySize == 0) {
+		var body = this.getFlattenedBody();
+		var total = 0;
+		for (var i = 0; i < body.length; i++) {
+			var part = body[i].size;
+			total += part;
+		}
+		this._bodySize = total;
+	}
+
+	return this._bodySize;
+};
+
+Character.prototype.getRandomWeightedBodyPart = function() {
+	var body = this.getFlattenedBody();
+	var rand = this.getBodySize() * Math.random() + 1;
+	var part = body[0];
+
+	for (var i = 0; i < body.length; i++) {
+		part = body[i];
+		rand -= part.size;
+		if (rand <= 0)
+			break;
 	}
 	
-	//hack for melee combat - make sure target is still in range.
-	if (map.distance(this.loc, target.loc) <= 1) {
-		var hit = 
-			this.accuracy * Math.random() - 
-			target.dodge * Math.random();						
-		
-		if (hit > 0) {
-			var dmg = Math.round(
-				this.dmg * Math.random() + 1 -
-					target.dmgResist * Math.random() + 1);
-			map.addMessage(this.name + " hit " + target.name + 
-						   " for " + dmg + " points of damage");
-			if (dmg >= 0) target.hitPoints -= dmg;
-			else map.addMessage(this.name + " lands a weak blow");
-			if (target.hitPoints <= 0) { 
-				target.die(map);					
+	return part;
+};
+
+Character.prototype.attack = function(target, map) {
+	// to hit: default is 9/20 chance, plus melee level (out of max 10):
+	var hitRoll = Math.random() * 20;
+	var hitModifier = 8 + this.meleeLevel;
+	
+	//todo: opponent dodge
+	if (hitRoll < hitModifier) {
+		// figure out if we're hitting with our hands (this.dmg) or a weapon
+		var dmg = this.dmg;
+		var type = "blunt"; //default for hands/fists
+		for (var i = 0; i < this.weaponSlots.length; i++) {
+			weapon = this.weaponSlots[i];
+			if (weapon) {
+				dmg = weapon.dmg;
+				type = weapon.attack_type;
+				break;
 			}
-		} else {
-			map.addMessage(this.name + " swings and misses");
+		}
+
+		// what did we hit?
+		var part = target.getRandomWeightedBodyPart();
+
+		// how much damage did we do overall, minus armor protection on body part?
+		var armor = target.armorSlots[part.type];
+		var actual_dmg = Math.round(Math.random() * dmg + 1);
+		if (armor) actual_dmg -= armor[type];
+
+		if (dmg > 0) {
+			target.hitPoints -= actual_dmg;
+			map.addMessage(this.name + " hits " + target.name + " in the " + part.descr + 
+						   " for " + actual_dmg.toString() + " points of damage");
+
+		}
+		else {
+			map.addMessage(this.name + " hits " + target.name + " in the " + part.descr + 
+						   " and delivers a glancing blow");
+		}
+
+		// todo: wound?
+
+		if (target.hitPoints <= 0) { 
+			target.die(map);					
 		}
 	} else {
-		map.addMessage(this.name + " swings at thin air");
+		map.addMessage(this.name + " swings and misses");
 	}
 };
 

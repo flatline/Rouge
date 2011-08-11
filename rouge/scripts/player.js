@@ -33,7 +33,7 @@ Player.prototype.setAction = function(actionCode, controller) {
 	} else if (typeof(this.queuedAction) === "undefined" || 
 			   this.queuedAction === null) 
 	{
-		this.queuedAction = action;
+		this.queuedAction = actionCode;
 	} //else ignore
 	
 	//this.act() will continue scheduling until the queued action and
@@ -95,7 +95,7 @@ function makePlayerMoveCommand (dir) {
 			action = new Action(function() {
 				actor.attack(target, map);
 			},
-			500);
+			1000);
 		} else {		
 			//move to the designated location
 			action = new Action(function() { 
