@@ -9,7 +9,8 @@ MessageFrame.prototype.draw = function(ctx) {
 	this.fill(ctx, "#000");
 	var borderWidth = 3;
 	this.border(ctx, "#888", borderWidth);
-	ctx.fillStyle = "#000";
+	ctx.font = "13px monospace";
+	ctx.fillStyle = "#fff";
 	
 	var len = messages.length > this.maxMessages ? 
 		this.maxMessages : 
@@ -21,8 +22,8 @@ MessageFrame.prototype.draw = function(ctx) {
 		if (msg = messages[i]) {
 			ctx.fillText(
 				msg, 
-				borderWidth + 3, 
-				this.top + this.height - (len - i) * 10, 
+				this.left + borderWidth + 3, 
+				this.top + this.height - (len - i) * 11, 
 				this.width);
 		} 
 	}

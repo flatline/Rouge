@@ -67,6 +67,7 @@ function Character() {
 	this.type = "Character";
 	this.name = "Character";	
 	this.hitPoints = 12;
+	this.maxHitPoints = 12;
 
 	// default hand-to-hand damage
 	this.dmg = 4;

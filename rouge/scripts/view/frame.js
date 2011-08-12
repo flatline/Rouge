@@ -26,6 +26,8 @@ Frame.prototype.init = function(attrs) {
 	this.left = attrs.left ? attrs.left : 0;
 	this.height = attrs.height ? attrs.height : 0;
 	this.width = attrs.width ? attrs.width : 0;	
+	this.below = null;
+	this.right = null;
 };
 
 Frame.prototype.draw = function(ctx) {
@@ -38,44 +40,50 @@ Frame.prototype.fill = function(ctx, color) {
 };
 
 Frame.prototype.border = function(ctx, color, thickness) {
-	ctx.fillStyle = color;
-	this.fill(ctx, color);
-	ctx.clearRect(this.left + thickness, this.top + thickness, 
-				  this.width - thickness * 2, this.height - thickness * 2);
+	ctx.strokeStyle = color;
+	ctx.strokeRect(this.left, 
+				   this.top, 
+				   this.width - 1, 
+				   this.height - 1);
 }; 
 
-Frame.prototype.above = function(below) {
-	below.top = this.top + this.height;
-	below.left = this.left;
+/**
+ * Recursively resets the coordinates for any child frames
+ */
+Frame.prototype.setTop = function(top) {
+	this.top = top;
+	if (this.right) this.right.setTop(top);
+	if (this.below) this.below.setTop(top + this.height);
+};
 
+/**
+ * Recursively resets the coordinates for any child frames
+ */
+Frame.prototype.setLeft = function(left) {
+	this.left = left;
+	if (this.right) this.right.setLeft(left + this.width);
+	if (this.below) this.below.setLeft(left);
+}
+
+Frame.prototype.above = function(below) {
 	var res = new Frame();
-	res.height = this.height + below.height;
-	res.width = this.width > below.width ? this.width : below.width;
-	res.top = this.top;
-	res.left = this.left;
-	res.draw = bind(
-		this, 
-		function(ctx) {
-			this.draw(ctx);
-			below.draw(ctx);
-		});
-	return res;
+	this.below = below;
+	below.setTop(this.top + this.height);
+	var draw = bind(this, this.draw);
+	this.draw = function(ctx) {
+		draw(ctx);
+		below.draw(ctx);
+	}
+	return this;
 };
 
 Frame.prototype.beside = function(right) {
-	right.top = this.top;
-	right.left = this.left + this.width;
-
-	var res = new Frame();
-	res.width = this.width + right.width;
-	res.height = this.height > right.height ? this.height : right.height;
-	res.top = this.top;
-	res.left = this.left;
-	res.draw = bind(
-		this, 
-		function(ctx) {
-			this.draw(ctx);
-			right.draw(ctx);
-		});
-	return res;
+	this.right = right;
+	right.setLeft(this.width);
+	var draw = bind(this, this.draw);
+	this.draw = function(ctx) {
+		draw(ctx);
+		right.draw(ctx);
+	}
+	return this;
 };

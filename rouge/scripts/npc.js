@@ -3,7 +3,7 @@ function NPC(spec) {
 	this.name = "NPC";
 	this.type = "NPC";
 	this.HD = 2;
-	this.hitPoints = Math.round(this.HD * Math.random() * 6) + 1
+	this.hitPoints = this.maxHitPoints = Math.round(this.HD * Math.random() * 6) + 1
 	this.currentStrategy = new WanderStrategy(this); //start state
 	this.currentStrategyName = typeof this.currentStrategy;
 }

@@ -9,7 +9,7 @@ function Player() {
 	this.type = "Player";
 	this.name = "Player";
 	this.id = world.getID();
-	this.hitPoints = 18;
+	this.hitPoints = this.maxHitPoints = 18;
 	//delay from the last action plus the time at which the action was started
 	this.timeout = 0; 
 	

@@ -20,6 +20,7 @@
 	<script type="text/javascript" src="scripts/view/frame.js"></script>
 	<script type="text/javascript" src="scripts/view/gameFrame.js"></script>
 	<script type="text/javascript" src="scripts/view/messageFrame.js"></script>
+	<script type="text/javascript" src="scripts/view/statsFrame.js"></script>
 	<script type="text/javascript" src="scripts/view/inventoryFrame.js"></script>
 	<script type="text/javascript" src="scripts/view/targetFrame.js"></script>
 	<script type="text/javascript" src="scripts/view/view.js"></script>
@@ -58,6 +59,7 @@
 		}
 		
 		$("#gameList").hide();
+	    $("#game_view").show();
 		evt.stopPropagation();
 		return false;
 	});
@@ -66,7 +68,8 @@
 		var gameList = $("#gameList");
 		var games = gameStorage.listGames();
 		for (var i = 0; i < games.length; i++) {
-			gameList.append('<li><a class="gameLink" data-gamekey="' + games[i] + '" href="#">' + games[i] + '</a></li>');
+			gameList.append('<li><a class="gameLink" data-gamekey="' + games[i] + '" href="#">' + 
+							games[i] + '</a></li>');
 		}
 	});
 </script>
@@ -127,6 +130,7 @@
 	  #game_view {
 	    width: 608px;
 	    height: 608px;
+	    display: none;
 	  }
 
 	  .panel {
@@ -163,17 +167,8 @@
 		  <ul id="gameList" class="panel">
 			<li><a class="gameLink" data-gamekey="new" href="#">New Game</a></li>
 		  </ul>
-		  <div id="stats" class="panel">			
-			Player Stats
-		  </div>
-		  <ul id="inventory" class="panel">
-			Inventory
-		  </ul>
 		</div>
 		<div id="game_view" class="panel column"></div>
-		<div id="messages" class="panel column">
-		  Messages
-		</div>
 	  </div>
 	</div>
   </body>

@@ -10,6 +10,7 @@ function HtmlMapView(controller) {
 	this.mainFrame = null
 	this.gameFrame = null;
 	this.messageFrame = null;
+	this.statsFrame = null;
 	
 	// the currently focused frame
 	this.focusFrame = null;
@@ -74,13 +75,25 @@ HtmlMapView.prototype.initFrames = function() {
 		width: vc.displayWidth
 	});
 
+	this.statsFrame = new StatsFrame(this.map.player);
+	this.statsFrame.init({
+		height: 128,
+		width: 128
+	});
+
 	this.messageFrame = new MessageFrame(this.map);
 	this.messageFrame.init({
 		height: 128,
-		width:	vc.displayWidth
+		width: vc.displayWidth - this.statsFrame.width
 	});
 	
-	this.mainFrame = this.gameFrame.above(this.messageFrame);
+	this.restoreDefaultView();
+}
+
+HtmlMapView.prototype.restoreDefaultView = function() {
+	this.mainFrame = this.gameFrame.above(
+		this.statsFrame.beside(
+			this.messageFrame));
 	this.setFocusFrame(this.gameFrame);
 }
 
@@ -110,7 +123,7 @@ HtmlMapView.prototype.showInventory = function(container) {
 	
 	this.inventoryFrames.push(frame);
 
-	this.mainFrame = frame.above(this.messageFrame);
+	this.mainFrame = frame.above(this.statsFrame.beside(this.messageFrame));
 	this.setFocusFrame(frame);
 };
 
@@ -141,7 +154,6 @@ HtmlMapView.prototype.showTargeting = function(callback) {
 };
 
 HtmlMapView.prototype.closeTargeting = function() {
-	this.mainFrame = this.gameFrame.above(this.messageFrame);
-	this.setFocusFrame(this.gameFrame);
+	this.restoreDefaultView();
 	this.controller.start();
 };
