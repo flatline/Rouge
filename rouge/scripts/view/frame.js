@@ -66,24 +66,31 @@ Frame.prototype.setLeft = function(left) {
 }
 
 Frame.prototype.above = function(below) {
+	// todo: this is not right; the draw function keeps getting deeper and deeper nestings
 	var res = new Frame();
+	//res.below = below;
 	this.below = below;
 	below.setTop(this.top + this.height);
-	var draw = bind(this, this.draw);
-	this.draw = function(ctx) {
-		draw(ctx);
+	//var draw = bind(this, this.draw);
+	res.draw = bind(this, function(ctx) {
+		this.draw(ctx);
 		below.draw(ctx);
-	}
-	return this;
+	});
+	res.setTop = bind(this, this.setTop);
+	res.setLeft = bind(this, this.setLeft);
+	return res;
 };
 
 Frame.prototype.beside = function(right) {
+	var res = new Frame();
+	//res.right = right;
 	this.right = right;
 	right.setLeft(this.width);
-	var draw = bind(this, this.draw);
-	this.draw = function(ctx) {
-		draw(ctx);
+	res.draw = bind(this, function(ctx) {
+		this.draw(ctx);
 		right.draw(ctx);
-	}
-	return this;
+	});
+	res.setTop = bind(this, this.setTop);
+	res.setLeft = bind(this, this.setLeft);
+	return res;
 };

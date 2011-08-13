@@ -134,7 +134,7 @@ HtmlMapView.prototype.closeInventory = function() {
 	this.inventoryFrames.pop();
 	var frameCount = this.inventoryFrames.length;
 	var frame = frameCount > 0 ? this.inventoryFrames[frameCount - 1] : this.gameFrame;
-	this.mainFrame = frame.above(this.messageFrame);
+	this.mainFrame = frame.above(this.statsFrame.beside(this.messageFrame));
 	this.setFocusFrame(frame);
 
 	if (frame == this.gameFrame) 

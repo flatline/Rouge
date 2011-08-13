@@ -227,8 +227,8 @@ Character.prototype.attack = function(target, map) {
 		// figure out if we're hitting with our hands (this.dmg) or a weapon
 		var dmg = this.dmg;
 		var type = "blunt"; //default for hands/fists
-		for (var i = 0; i < this.weaponSlots.length; i++) {
-			weapon = this.weaponSlots[i];
+		for (var slot in this.weaponSlots) {
+			weapon = this.weaponSlots[slot];
 			if (weapon) {
 				dmg = weapon.dmg;
 				type = weapon.attack_type;
