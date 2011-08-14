@@ -1,6 +1,6 @@
 function MessageFrame(map) {
 	this.map = map;
-	this.maxMessages = 10;
+	this.maxMessages = 11;
 }
 MessageFrame.prototype = new Frame();
 
@@ -23,7 +23,7 @@ MessageFrame.prototype.draw = function(ctx) {
 			ctx.fillText(
 				msg, 
 				this.left + borderWidth + 3, 
-				this.top + this.height - (len - i) * 11, 
+				this.top + (len - i) * 11, 
 				this.width);
 		} 
 	}
