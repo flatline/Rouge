@@ -8,7 +8,12 @@ function Container() {
 Container.prototype = new Array();
 
 Container.prototype._categoryPredicate = function(a, b) {
-	return a.itemCategory > b.itemCategory;
+	if (a.itemCategory > b.itemCategory) 
+		return 1;
+	else if (a.itemCategory < b.itemCategory) 
+		return -1;
+	else
+		return a.descr > b.descr ? 1 : -1;
 }
 
 Container.prototype.addItem = function(item) {
