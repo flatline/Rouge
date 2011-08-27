@@ -71,12 +71,21 @@ function Character() {
 
 	// default hand-to-hand damage
 	this.dmg = 4;
+	this.unarmedAttackType = "blunt";
 
 	// character stats
 	this.str = Math.random() * 15 + 4;
 	this.dex = Math.random() * 15 + 4;
 
-	this.meleeLevel = 0;
+	// max level of ten for each
+	this.skills = {
+		"unarmed" : 0,
+		"longsword" : 0,
+		"sword" : 0,
+		"hammer" : 0,
+		"greatsword" : 0,
+		"bow" : 0
+	};
 
 	// character inventory
 	this.items = new Container();
@@ -85,6 +94,8 @@ function Character() {
 		right_hand : null,
 		left_hand : null
 	}
+
+	this.ammoSlot = null;
 
 	// slots for e.g. armor, rings, etc.
 	this.armorSlots = {
@@ -218,23 +229,26 @@ Character.prototype.getRandomWeightedBodyPart = function() {
 };
 
 Character.prototype.attack = function(target, map) {
-	// to hit: default is 9/20 chance, plus melee level (out of max 10):
-	var hitRoll = Math.random() * 20;
-	var hitModifier = 8 + this.meleeLevel;
-	
-	//todo: opponent dodge
-	if (hitRoll < hitModifier) {
-		// figure out if we're hitting with our hands (this.dmg) or a weapon
-		var dmg = this.dmg;
-		var type = "blunt"; //default for hands/fists
-		for (var slot in this.weaponSlots) {
-			weapon = this.weaponSlots[slot];
-			if (weapon) {
-				dmg = weapon.dmg;
-				type = weapon.attack_type;
-				break;
-			}
+	// figure out if we're attacking with our hands (this.dmg) or a weapon
+	var dmg = this.dmg;
+	var type = this.unarmedAttackType;
+	var skill = "unarmed";
+	var weapon = null;
+	for (var slot in this.weaponSlots) {
+		weapon = this.weaponSlots[slot];
+		if (weapon) {
+			dmg = weapon.dmg;
+			type = weapon.attack_type;
+			skill = weapon.skill;
+			break;
 		}
+	}
+
+	//to hit: default is 9/20 chance, plus skill level (out of max 10):
+	var hitRoll = Math.random() * 20;
+	var hitModifier = 8 + (skill in this.skills ? this.skills[skill] : 0);
+	
+	if (hitRoll < hitModifier) {
 
 		// what did we hit?
 		var part = target.getRandomWeightedBodyPart();
@@ -263,7 +277,7 @@ Character.prototype.attack = function(target, map) {
 	} else {
 		map.addMessage(this.name + " swings and misses");
 	}
-};
+}
 
 Character.prototype.die = function(map) {
 	this.active = false;

@@ -30,6 +30,14 @@ function Armor() {
 }
 Armor.prototype = new Item();
 
+function Ammo() {
+	this.typeName = "Ammo";
+	this.itemCategory = "Ammo";
+	this.attack_type = "ranged";
+	this.stackable = true;
+}
+Ammo.prototype = new Item();
+
 var WeaponBuilder = new function weaponBuilder() {
 	this.build = function(key) {
 		var result = new Weapon();
@@ -57,6 +65,15 @@ var FoodBuilder = new function foodBuilder(key) {
 		result.id = world.getID();
 		result.merge(FoodTable[key]);
 		result.stackable = true;
+		return result;
+	}
+}
+
+var AmmoBuilder = new function ammoBuilder(key) {
+	this.build = function(key) {
+		var result = new Ammo();
+		result.id = world.getID();
+		result.merge(AmmoTable[key]);
 		return result;
 	}
 }
@@ -130,7 +147,7 @@ var WeaponsTable = {
 		repr : "weapons:1,9",
 		dmg : 6,
 		weight : 3,
-		attack_type: "blunt",
+		attack_type: "blunt"
 	},
 	"war_hammer" : {
 		descr : "a war hammer",
@@ -138,9 +155,28 @@ var WeaponsTable = {
 		repr : "weapons:4,8",
 		dmg : 10,
 		weight : 6,
-		attack_type: "blunt",
+		attack_type: "blunt"
+	},
+	"longbow" : {
+		descr : "a longbow",
+		skill : "bow",
+		repr : "weapons:4,4",
+		dmg : 0,
+		weight : 3,
+		attack_type : "ranged",
+		two_handed: true
 	}
 };
+
+var AmmoTable = {
+	"arrows" : {
+		//qty hack for testing
+		descr : "arrows",
+		qty : 30,
+		repr : "weapons:5,0",
+		dmg : 3
+	}
+}
 
 var ArmorTable = {
 	"leather_helm" : {

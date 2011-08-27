@@ -167,6 +167,14 @@ function addItems(map) {
 				 Math.floor(Math.random() * 8 + 11), 
 				 Math.floor(Math.random() * 8 + 11));
 	}
+	
+	for (var ammo in AmmoTable) {
+		if (!AmmoTable.hasOwnProperty(ammo))
+			continue;
+		map.poke(AmmoBuilder.build(ammo),
+				 Math.floor(Math.random() * 8 + 11), 
+				 Math.floor(Math.random() * 8 + 11));				 
+	}
 }
 
 function newGameController() {

@@ -56,6 +56,10 @@ InventoryFrame.prototype.draw = function(ctx) {
 				descr += " (wielded in left hand)";
 			}
 		}
+		else if (item instanceof Ammo) {
+			if (this.player.ammoSlot == item)
+				descr += " (in quiver)";
+		}
 
 		ctx.fillText(descr, xOffset, yOffset, width);
 	}
@@ -86,16 +90,29 @@ InventoryFrame.prototype.commandHandler = function(evt) {
 			this.selectedIndex += 1;
 		stopEvent = true;
 		break;
+	case 81:
+		// q = quiver
+		if (item instanceof Ammo) {
+			if (player.ammoSlot == item)
+				player.ammoSlot = null;
+			else
+				player.ammoSlot = item;
+		}
+		stopEvent = true;
+		break;
 	case 68:
 		// d = drop
+		// todo: unwield on drop
 		if (container.length > 0) {
 			this.view.map.player.drop(container, this.selectedIndex, this.view.map);
 			if (this.selectedIndex > container.length - 1)
 				this.selectedIndex = container.length - 1;
 		}
 		stopEvent = true;
+		break;
 	case 87:
 		// w = wield or wear
+		//todo: remove
 		if (item instanceof Armor) {
 			player.wearArmor(item);
 			this.view.map.addMessage("You put on " + item.descr);
@@ -109,7 +126,8 @@ InventoryFrame.prototype.commandHandler = function(evt) {
 				this.view.map.addMessage(e);
 			}
 		}
-	//todo: remove
+		stopEvent = true;
+		break;
 	}
 
 	// re-render when anything changes, e.g. an item is dropped.
